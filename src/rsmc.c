@@ -2,21 +2,19 @@
 
 RsmcPlayersScore rsmc_get_players_score(const RsmcBoard *board)
 {
-    RsmcPlayersScore result = {0, 0};
+    uint8_t count[3] = {0};
     for (int y = 0; y < RsmcBoardSize; y++) {
         for (int x = 0; x < RsmcBoardSize; x++) {
-            switch (board->cells[y][x]) {
-                case RsmcBoardCellWhite:
-                    result.white_score++;
-                    break;
-                case RsmcBoardCellBlack:
-                    result.black_score++;
-                    break;
-                default:;
+            if (board->cells[y][x] < RsmcBoardCellCount) {
+                count[board->cells[y][x]]++;
             }
         }
     }
 
+    const RsmcPlayersScore result = {
+        .white_score = count[RsmcBoardCellWhite],
+        .black_score = count[RsmcBoardCellBlack],
+    };
     return result;
 }
 
