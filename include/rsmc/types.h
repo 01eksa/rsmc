@@ -69,6 +69,16 @@ _Static_assert(sizeof(RsmcMoves) == 69, "unexpected padding in RsmcMoves");
 
 // type extensions
 
+static inline RsmcPlayer rsmc_cell_to_player(const RsmcBoardCell cell)
+{
+    return cell - 1;
+}
+
+static inline RsmcBoardCell rsmc_player_to_cell(const RsmcPlayer player)
+{
+    return player + 1;
+}
+
 static inline RsmcCoords rsmc_coords_add(const RsmcCoords left, const RsmcCoords right)
 {
     RsmcCoords result;
