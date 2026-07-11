@@ -18,7 +18,8 @@ enum {
 typedef uint8_t RsmcPlayer;
 enum {
     RsmcPlayerWhite = 0,
-    RsmcPlayerBlack = 1
+    RsmcPlayerBlack = 1,
+    RsmcPlayerCount = 2,
 };
 
 typedef uint8_t RsmcGameStatus;
@@ -26,14 +27,16 @@ enum {
     RsmcGameStatusContinue = 0,
     RsmcGameStatusDraw = 1,
     RsmcGameStatusWhiteWin = 2,
-    RsmcGameStatusBlackWin = 3
+    RsmcGameStatusBlackWin = 3,
+    RsmcGameStatusCount = 4,
 };
 
 typedef uint8_t RsmcBoardCell;
 enum {
     RsmcBoardCellEmpty = 0,
     RsmcBoardCellWhite = 1,
-    RsmcBoardCellBlack = 2
+    RsmcBoardCellBlack = 2,
+    RsmcBoardCellCount = 3,
 };
 
 // structs
