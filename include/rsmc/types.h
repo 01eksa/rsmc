@@ -42,8 +42,8 @@ typedef struct {
 } RsmcBoard;
 
 typedef struct {
-    uint8_t size;
-    RsmcCoords *coords;
+    uint8_t count;
+    RsmcCoords coords[34];
 } RsmcMoves;
 
 // type extensions
