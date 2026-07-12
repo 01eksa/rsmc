@@ -18,6 +18,7 @@ target_include_directories(rsmc PUBLIC
 set_target_properties(rsmc PROPERTIES
         VERSION 0.1.0
         SOVERSION 0
+        WINDOWS_EXPORT_ALL_SYMBOLS ON
 )
 
 
