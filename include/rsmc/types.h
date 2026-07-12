@@ -23,15 +23,16 @@ enum {
      */
     RsmcBoardSize = 8,
     /**
-     * Minimal possible value for index on the board.
+     * @brief Minimal possible value for index on the board.
      */
     RsmcMinCoord = 0,
     /**
-     * Maximal possible value for index on the board.
+     * @brief Maximal possible value for index on the board.
      */
     RsmcMaxCoord = RsmcBoardSize - 1,
     /**
-     * Maximal possible count of valid moves (proven by Takizawa, Hiroki in 2023)
+     * @brief Maximal possible count of valid moves.
+     * Proven by Takizawa, Hiroki in 2023.
      */
     RsmcMaxValidMoves = 34, // theoretical max count of valid moves
 };
@@ -79,7 +80,7 @@ static inline bool rsmc_game_status_is_valid(const RsmcGameStatus status)
 }
 
 /**
- * Board cell (empty, white, black)
+ * @brief Board cell (empty, white, black)
  */
 typedef uint8_t RsmcBoardCell;
 enum {
@@ -89,7 +90,7 @@ enum {
     RsmcBoardCellCount = 3,
 };
 /**
- * Checks if number is a valid RsmcBoardCell.
+ * @brief Checks if number is a valid RsmcBoardCell.
  *
  * @param cell RsmcBoardCell to validate.
  * @return true if cell is valid, false if not.
@@ -102,7 +103,7 @@ static inline bool rsmc_board_cell_is_valid(const RsmcBoardCell cell)
 // structs
 
 /**
- * Stores score fot both players.
+ * @brief Stores score fot both players.
  */
 typedef struct {
     uint8_t white_score;
@@ -111,7 +112,7 @@ typedef struct {
 static_assert(sizeof(RsmcPlayersScore) == 2, "unexpected padding in RsmcPlayersScore");
 
 /**
- * Stores score for both players and game status.
+ * @brief Stores score for both players and game status.
  */
 typedef struct {
     RsmcPlayersScore score;
@@ -120,7 +121,8 @@ typedef struct {
 static_assert(sizeof(RsmcGameState) == 3, "unexpected padding in RsmcGameState");
 
 /**
- * Stores coords for the board. Coords might be invalid and negative.
+ * @brief Stores coords for the board.
+ * Coords might be invalid and negative.
  */
 typedef struct {
     int8_t x;
