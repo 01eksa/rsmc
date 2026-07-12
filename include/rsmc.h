@@ -1,6 +1,6 @@
 /**
  * @file rsmc.h
- * @brief reversi stateless model in C
+ * @brief Reversi stateless model in C - API.
  *
  */
 

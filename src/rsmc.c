@@ -1,3 +1,9 @@
+/**
+ * @file rsmc.h
+ * @brief Reversi stateless model in C - implementation.
+ *
+ */
+
 #include <string.h>
 
 #include "directions.h"
