@@ -1,6 +1,6 @@
 /**
  * @file rsmc.h
- * @brief types and constants for rsmc
+ * @brief Types and constants for rsmc.
  *
  */
 
