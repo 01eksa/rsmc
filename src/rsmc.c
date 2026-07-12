@@ -137,7 +137,7 @@ bool rsmc_is_move_valid(const RsmcBoard *board, const RsmcCoords coords, const R
     return false;
 }
 
-RsmcMoves rsmc_get_valid_moves(const RsmcBoard *board, RsmcPlayer player)
+RsmcMoves rsmc_get_valid_moves(const RsmcBoard *board, const RsmcPlayer player)
 {
     RsmcMoves result = {0};
 
