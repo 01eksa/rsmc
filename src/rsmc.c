@@ -3,6 +3,36 @@
 #include "directions.h"
 #include "rsmc.h"
 
+static uint8_t count_flips_in_direction(const RsmcBoard *board, RsmcCoords coords_to_check,
+                                        const RsmcCoords direction, const RsmcBoardCell player_cell,
+                                        const RsmcBoardCell opponent_cell)
+{
+    uint8_t cells_to_flip = 0;
+
+    while (true) {
+        coords_to_check = rsmc_coords_add(coords_to_check, direction);
+
+        if (!rsmc_coords_is_valid(coords_to_check)) {
+            break;
+        }
+
+        const RsmcBoardCell cell_to_check = *rsmc_cell_at_const(board, coords_to_check);
+
+        if (cell_to_check == opponent_cell) {
+            cells_to_flip++;
+            continue;
+        }
+
+        if (cell_to_check == player_cell && cells_to_flip) {
+            return cells_to_flip;
+        }
+
+        break;
+    }
+
+    return 0;
+}
+
 void rsmc_set_start_position(RsmcBoard *board)
 {
     memset(board->cells, RsmcBoardCellEmpty, sizeof(board->cells));
@@ -25,41 +55,25 @@ bool rsmc_apply_move(RsmcBoard *board, const RsmcCoords coords, const RsmcPlayer
     }
 
     const RsmcBoardCell player_cell = rsmc_player_to_cell(player);
-    const RsmcPlayer opposite_player = rsmc_player_opposite(player);
-    const RsmcBoardCell opposite_player_cell = rsmc_player_to_cell(opposite_player);
+    const RsmcPlayer opponent = rsmc_player_opposite(player);
+    const RsmcBoardCell opponent_cell = rsmc_player_to_cell(opponent);
 
     bool flipped = false;
 
     for (int i = 0; i < RsmcDirectionsCount; i++) {
         const RsmcCoords direction = RsmcDirections[i];
-        RsmcCoords coords_to_check = coords;
-        uint8_t cells_to_flip = 0;
+        RsmcCoords current_coords = coords;
+        const uint8_t cells_to_flip =
+            count_flips_in_direction(board, current_coords, direction, player_cell, opponent_cell);
 
-        while (true) {
-            coords_to_check = rsmc_coords_add(coords_to_check, direction);
+        if (cells_to_flip > 0) {
+            flipped = true;
 
-            if (!rsmc_coords_is_valid(coords_to_check)) {
-                break;
+            for (uint8_t j = 0; j < cells_to_flip; j++) {
+                current_coords = rsmc_coords_add(current_coords, direction);
+                RsmcBoardCell *cell_to_flip = rsmc_cell_at(board, current_coords);
+                *cell_to_flip = player_cell;
             }
-
-            const RsmcBoardCell cell_to_check = *rsmc_cell_at(board, coords_to_check);
-
-            if (cell_to_check == opposite_player_cell) {
-                cells_to_flip++;
-                continue;
-            }
-
-            if (cell_to_check == player_cell && cells_to_flip) {
-                flipped = true;
-                for (uint8_t j = 0; j < cells_to_flip; j++) {
-                    const RsmcCoords coords_to_flip = rsmc_coords_sub(coords_to_check, direction);
-                    RsmcBoardCell *cell_to_flip = rsmc_cell_at(board, coords_to_flip);
-                    *cell_to_flip = player_cell;
-                }
-                break;
-            }
-
-            break;
         }
     }
 
