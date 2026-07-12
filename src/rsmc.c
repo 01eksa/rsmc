@@ -5,7 +5,7 @@ RsmcPlayersScore rsmc_get_players_score(const RsmcBoard *board)
     uint8_t count[3] = {0};
     for (int y = 0; y < RsmcBoardSize; y++) {
         for (int x = 0; x < RsmcBoardSize; x++) {
-            if (board->cells[y][x] < RsmcBoardCellCount) {
+            if (rsmc_board_cell_is_valid(board->cells[y][x])) {
                 count[board->cells[y][x]]++;
             }
         }
