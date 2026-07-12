@@ -1,7 +1,14 @@
+/**
+ * @file rsmc.h
+ * @brief types and constants for rsmc
+ *
+ */
+
 #ifndef RSMC_TYPES_H
 #define RSMC_TYPES_H
-#include <stdint.h>
+
 #include <stdbool.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -10,23 +17,47 @@ extern "C" {
 // enums
 
 enum {
+    /**
+     * @brief Size of one side of the board.
+     */
     RsmcBoardSize = 8,
+    /**
+     * Minimal possible value for index on the board.
+     */
     RsmcMinCoord = 0,
+    /**
+     * Maximal possible value for index on the board.
+     */
     RsmcMaxCoord = RsmcBoardSize - 1,
+    /**
+     * Maximal possible count of valid moves (proven by Takizawa, Hiroki in 2023)
+     */
     RsmcMaxValidMoves = 34, // theoretical max count of valid moves
 };
 
+/**
+ * @brief Player's color.
+ */
 typedef uint8_t RsmcPlayer;
 enum {
     RsmcPlayerWhite = 0,
     RsmcPlayerBlack = 1,
     RsmcPlayerCount = 2,
 };
+/**
+ * @brief Checks if number is a valid RsmcPlayer.
+ *
+ * @param player RsmcPlayer to validate.
+ * @return true if player is valid, false if not.
+ */
 static inline bool rsmc_player_is_valid(const RsmcPlayer player)
 {
     return player < RsmcPlayerCount;
 }
 
+/**
+ * @brief Game status (continue, draw, white win, black win).
+ */
 typedef uint8_t RsmcGameStatus;
 enum {
     RsmcGameStatusContinue = 0,
@@ -35,11 +66,20 @@ enum {
     RsmcGameStatusBlackWin = 3,
     RsmcGameStatusCount = 4,
 };
+/**
+ * @brief Checks if number is a valid RsmcGameStatus.
+ *
+ * @param status RsmcGameStatus to validate.
+ * @return true if status is valid, false if not.
+ */
 static inline bool rsmc_game_status_is_valid(const RsmcGameStatus status)
 {
     return status < RsmcGameStatusCount;
 }
 
+/**
+ * Board cell (empty, white, black)
+ */
 typedef uint8_t RsmcBoardCell;
 enum {
     RsmcBoardCellEmpty = 0,
@@ -47,6 +87,12 @@ enum {
     RsmcBoardCellBlack = 2,
     RsmcBoardCellCount = 3,
 };
+/**
+ * Checks if number is a valid RsmcBoardCell.
+ *
+ * @param cell RsmcBoardCell to validate.
+ * @return true if cell is valid, false if not.
+ */
 static inline bool rsmc_board_cell_is_valid(const RsmcBoardCell cell)
 {
     return cell < RsmcBoardCellCount;
@@ -54,57 +100,97 @@ static inline bool rsmc_board_cell_is_valid(const RsmcBoardCell cell)
 
 // structs
 
+/**
+ * Stores score fot both players.
+ */
 typedef struct {
     uint8_t white_score;
     uint8_t black_score;
 } RsmcPlayersScore;
 _Static_assert(sizeof(RsmcPlayersScore) == 2, "unexpected padding in RsmcPlayersScore");
 
+/**
+ * Stores score for both players and game status.
+ */
 typedef struct {
     RsmcPlayersScore score;
     RsmcGameStatus game_status;
 } RsmcGameState;
 _Static_assert(sizeof(RsmcGameState) == 3, "unexpected padding in RsmcGameState");
 
+/**
+ * Stores coords for the board. Coords might be invalid and negative.
+ */
 typedef struct {
     int8_t x;
     int8_t y;
 } RsmcCoords;
 _Static_assert(sizeof(RsmcCoords) == 2, "unexpected padding in RsmcCoords");
+/**
+ * @brief Checks if coords are valid for RsmcBoard.
+ *
+ * @param coords RsmcCoords to validate.
+ * @return true if coords are valid, false if not.
+ */
 static inline bool rsmc_coords_is_valid(const RsmcCoords coords)
 {
     return coords.x >= 0 && coords.y >= 0 && coords.x < RsmcBoardSize && coords.y < RsmcBoardSize;
 }
 
+/**
+ * @brief Stores board in 2-dimensional array of all RsmcBoardCell.
+ */
 typedef struct {
     RsmcBoardCell cells[RsmcBoardSize][RsmcBoardSize];
 } RsmcBoard;
 _Static_assert(sizeof(RsmcBoard) == 64, "unexpected padding in RsmcBoard");
 
+/**
+ * @brief Stores valid moves.
+ */
 typedef struct {
+    /**
+     * @brief Count of valid moves.
+     */
     uint8_t count;
+    /**
+     * Valid moves, only on indexes [0, count)
+     */
     RsmcCoords coords[RsmcMaxValidMoves];
 } RsmcMoves;
 _Static_assert(sizeof(RsmcMoves) == 69, "unexpected padding in RsmcMoves");
 
 // type extensions
 
-static inline RsmcPlayer rsmc_cell_to_player(const RsmcBoardCell cell)
-{
-    return cell - 1;
-}
-
+/**
+ * Converts player type to cell type without validation
+ *
+ * @param player RsmcPlayer to convert.
+ * @return corresponding RsmcBoardCell (White or Black).
+ */
 static inline RsmcBoardCell rsmc_player_to_cell(const RsmcPlayer player)
 {
     return player + 1;
 }
 
-// Assumes exactly two players (RsmcPlayerWhite/RsmcPlayerBlack).
+/**
+ * Converts player to opposite color without validation.
+ *
+ * @param player player to get opposite for.
+ * @return opposite color player.
+ */
 static inline RsmcPlayer rsmc_player_opposite(const RsmcPlayer player)
 {
-    return (RsmcPlayer)!player;
+    return (RsmcPlayer)!player; // assume exactly two players (RsmcPlayerWhite/RsmcPlayerBlack).
 }
 
+/**
+ * Adds to coords and returns the result.
+ *
+ * @param left left coords.
+ * @param right right coords.
+ * @return left + right.
+ */
 static inline RsmcCoords rsmc_coords_add(const RsmcCoords left, const RsmcCoords right)
 {
     RsmcCoords result;
@@ -113,6 +199,13 @@ static inline RsmcCoords rsmc_coords_add(const RsmcCoords left, const RsmcCoords
     return result;
 }
 
+/**
+ * Subtracts coords and returns the result.
+ *
+ * @param left left coords.
+ * @param right right coords.
+ * @return left - right.
+ */
 static inline RsmcCoords rsmc_coords_sub(const RsmcCoords left, const RsmcCoords right)
 {
     RsmcCoords result;
@@ -121,12 +214,27 @@ static inline RsmcCoords rsmc_coords_sub(const RsmcCoords left, const RsmcCoords
     return result;
 }
 
+/**
+ * Returns mutable pointer to cell based on coords without validation.
+ *
+ * @param board a pointer to RsmcBoard.
+ * @param coords coords of a cell.
+ * @return a mutable pointer to the cell.
+ */
 static inline RsmcBoardCell *rsmc_cell_at(RsmcBoard *board, const RsmcCoords coords)
 {
     return &board->cells[coords.y][coords.x];
 }
 
-static inline const RsmcBoardCell *rsmc_cell_at_const(const RsmcBoard *board, const RsmcCoords coords)
+/**
+ * Returns constant pointer to cell based on coords without validation.
+ *
+ * @param board a constant pointer to RsmcBoard.
+ * @param coords a coords of a cell.
+ * @return a constant pointer to the cell.
+ */
+static inline const RsmcBoardCell *rsmc_cell_at_const(const RsmcBoard *board,
+                                                      const RsmcCoords coords)
 {
     return &board->cells[coords.y][coords.x];
 }
