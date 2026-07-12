@@ -2,6 +2,7 @@
 
 #include "directions.h"
 #include "rsmc.h"
+#include "utils.h"
 
 static uint8_t count_flips_in_direction(const RsmcBoard *board, RsmcCoords coords_to_check,
                                         const RsmcCoords direction, const RsmcBoardCell player_cell,
@@ -44,7 +45,7 @@ void rsmc_set_start_position(RsmcBoard *board)
 
 bool rsmc_apply_move(RsmcBoard *board, const RsmcCoords coords, const RsmcPlayer player)
 {
-    if (!rsmc_coords_is_valid(coords)) {
+    if (!rsmc_coords_is_valid(coords) || !rsmc_player_is_valid(player)) {
         return false;
     }
 
@@ -102,15 +103,9 @@ RsmcPlayersScore rsmc_get_players_score(const RsmcBoard *board)
     return result;
 }
 
-uint8_t rsmc_get_player_score(const RsmcBoard *board, const RsmcPlayer player)
-{
-    const RsmcPlayersScore score = rsmc_get_players_score(board);
-    return player == RsmcPlayerWhite ? score.white_score : score.black_score;
-}
-
 bool rsmc_is_move_valid(const RsmcBoard *board, const RsmcCoords coords, const RsmcPlayer player)
 {
-    if (!rsmc_coords_is_valid(coords)) {
+    if (!rsmc_coords_is_valid(coords) || !rsmc_player_is_valid(player)) {
         return false;
     }
 
@@ -140,6 +135,10 @@ bool rsmc_is_move_valid(const RsmcBoard *board, const RsmcCoords coords, const R
 RsmcMoves rsmc_get_valid_moves(const RsmcBoard *board, const RsmcPlayer player)
 {
     RsmcMoves result = {0};
+
+    if (!rsmc_player_is_valid(player)) {
+        return result;
+    }
 
     const int8_t board_size = RsmcBoardSize;
     for (int8_t y = 0; y < board_size; y++) {
