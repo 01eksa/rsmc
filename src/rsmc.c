@@ -145,7 +145,7 @@ RsmcMoves rsmc_get_valid_moves(const RsmcBoard *board, const RsmcPlayer player)
     for (int8_t y = 0; y < board_size; y++) {
         for (int8_t x = 0; x < board_size; x++) {
             const RsmcCoords coords = {x, y};
-            if (rsmc_is_move_valid(board, coords, player)) {
+            if (rsmc_is_move_valid(board, coords, player) && result.count < RsmcMaxValidMoves) {
                 result.coords[result.count++] = coords;
             }
         }
