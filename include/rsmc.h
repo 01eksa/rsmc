@@ -16,6 +16,8 @@ uint8_t rsmc_get_player_score(const RsmcBoard *board, RsmcPlayer player);
 
 RsmcPlayersScore rsmc_get_players_score(const RsmcBoard *board);
 
+bool rsmc_is_move_valid(const RsmcBoard *board, RsmcCoords coords, RsmcPlayer player);
+
 RsmcMoves rsmc_get_valid_moves(const RsmcBoard *board, RsmcPlayer player);
 
 RsmcGameStatus rsmc_get_game_status(const RsmcBoard *board);
