@@ -153,3 +153,53 @@ RsmcMoves rsmc_get_valid_moves(const RsmcBoard *board, const RsmcPlayer player)
 
     return result;
 }
+
+RsmcGameState rsmc_get_game_state(const RsmcBoard *board)
+{
+    bool game_finished = true;
+    RsmcPlayersScore score = {0};
+
+    const int8_t board_size = RsmcBoardSize;
+    for (int8_t y = 0; y < board_size; y++) {
+        for (int8_t x = 0; x < board_size; x++) {
+            const RsmcCoords coords = {x, y};
+            const RsmcBoardCell cell = *rsmc_cell_at_const(board, coords);
+
+            switch (cell) {
+                case RsmcBoardCellWhite:
+                    score.white_score++;
+                    break;
+                case RsmcBoardCellBlack:
+                    score.black_score++;
+                    break;
+                case RsmcBoardCellEmpty:
+                    if (game_finished && (rsmc_is_move_valid(board, coords, RsmcPlayerWhite) ||
+                                          rsmc_is_move_valid(board, coords, RsmcPlayerBlack))) {
+                        game_finished = false;
+                    }
+                    break;
+                default:;
+            }
+        }
+    }
+
+    RsmcGameStatus game_status;
+
+    if (!game_finished) {
+        game_status = RsmcGameStatusContinue;
+    } else if (score.white_score > score.black_score) {
+        game_status = RsmcGameStatusWhiteWin;
+    } else if (score.black_score > score.white_score) {
+        game_status = RsmcGameStatusBlackWin;
+    } else {
+        game_status = RsmcGameStatusDraw;
+    }
+
+    const RsmcGameState result = {score, game_status};
+    return result;
+}
+
+RsmcGameStatus rsmc_get_game_status(const RsmcBoard *board)
+{
+    return rsmc_get_game_state(board).game_status;
+}
