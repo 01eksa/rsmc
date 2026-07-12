@@ -126,6 +126,11 @@ static inline RsmcBoardCell *rsmc_cell_at(RsmcBoard *board, const RsmcCoords coo
     return &board->cells[coords.y][coords.x];
 }
 
+static inline const RsmcBoardCell *rsmc_cell_at_const(const RsmcBoard *board, const RsmcCoords coords)
+{
+    return &board->cells[coords.y][coords.x];
+}
+
 #ifdef __cplusplus
 }
 #endif
