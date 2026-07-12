@@ -6,14 +6,19 @@
 extern "C" {
 #endif
 
-static const RsmcCoords RSMC_UP = {0, -1};
-static const RsmcCoords RSMC_DOWN = {0, 1};
-static const RsmcCoords RSMC_LEFT = {-1, 0};
-static const RsmcCoords RSMC_RIGHT = {1, 0};
-static const RsmcCoords RSMC_UP_RIGHT = {1, -1};
-static const RsmcCoords RSMC_DOWN_RIGHT = {1, 1};
-static const RsmcCoords RSMC_UP_LEFT = {-1, -1};
-static const RsmcCoords RSMC_DOWN_LEFT = {-1, 1};
+static const RsmcCoords RsmcUp = {0, -1};
+static const RsmcCoords RsmcDown = {0, 1};
+static const RsmcCoords RsmcLeft = {-1, 0};
+static const RsmcCoords RsmcRight = {1, 0};
+static const RsmcCoords RsmcUpRight = {1, -1};
+static const RsmcCoords RsmcDownRight = {1, 1};
+static const RsmcCoords RsmcUpLeft = {-1, -1};
+static const RsmcCoords RsmcDownLeft = {-1, 1};
+
+static const RsmcCoords RsmcDirections[] = {
+    RsmcUp, RsmcDown, RsmcLeft, RsmcRight, RsmcUpRight, RsmcDownRight, RsmcUpLeft, RsmcDownLeft,
+};
+static const int RsmcDirectionsCount = sizeof(RsmcDirections) / sizeof(RsmcCoords);
 
 #ifdef __cplusplus
 }
