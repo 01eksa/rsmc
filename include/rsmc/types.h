@@ -1,6 +1,7 @@
 #ifndef RSMC_TYPES_H
 #define RSMC_TYPES_H
 #include <stdint.h>
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,6 +22,10 @@ enum {
     RsmcPlayerBlack = 1,
     RsmcPlayerCount = 2,
 };
+static inline bool rsmc_player_is_valid(const RsmcPlayer player)
+{
+    return player < RsmcPlayerCount;
+}
 
 typedef uint8_t RsmcGameStatus;
 enum {
@@ -30,6 +35,10 @@ enum {
     RsmcGameStatusBlackWin = 3,
     RsmcGameStatusCount = 4,
 };
+static inline bool rsmc_game_status_is_valid(const RsmcGameStatus status)
+{
+    return status < RsmcGameStatusCount;
+}
 
 typedef uint8_t RsmcBoardCell;
 enum {
@@ -38,6 +47,10 @@ enum {
     RsmcBoardCellBlack = 2,
     RsmcBoardCellCount = 3,
 };
+static inline bool rsmc_board_cell_is_valid(const RsmcBoardCell cell)
+{
+    return cell < RsmcBoardCellCount;
+}
 
 // structs
 
@@ -58,6 +71,10 @@ typedef struct {
     int8_t y;
 } RsmcCoords;
 _Static_assert(sizeof(RsmcCoords) == 2, "unexpected padding in RsmcCoords");
+bool static inline rsmc_coords_is_valid(const RsmcCoords coords)
+{
+    return coords.x >= 0 && coords.y >= 0 && coords.x < RsmcBoardSize && coords.y < RsmcBoardSize;
+}
 
 typedef struct {
     RsmcBoardCell cells[RsmcBoardSize][RsmcBoardSize];
@@ -96,6 +113,11 @@ static inline RsmcCoords rsmc_coords_sub(const RsmcCoords left, const RsmcCoords
     result.x = (int8_t)(left.x - right.x);
     result.y = (int8_t)(left.y - right.y);
     return result;
+}
+
+static inline RsmcBoardCell *rsmc_cell_at(RsmcBoard *board, RsmcCoords coords)
+{
+    return &board->cells[coords.y][coords.x];
 }
 
 #ifdef __cplusplus
