@@ -107,3 +107,32 @@ uint8_t rsmc_get_player_score(const RsmcBoard *board, const RsmcPlayer player)
     const RsmcPlayersScore score = rsmc_get_players_score(board);
     return player == RsmcPlayerWhite ? score.white_score : score.black_score;
 }
+
+bool rsmc_is_move_valid(const RsmcBoard *board, const RsmcCoords coords, const RsmcPlayer player)
+{
+    if (!rsmc_coords_is_valid(coords)) {
+        return false;
+    }
+
+    const RsmcBoardCell asked_cell = *rsmc_cell_at_const(board, coords);
+
+    if (asked_cell != RsmcBoardCellEmpty) {
+        return false;
+    }
+
+    const RsmcBoardCell player_cell = rsmc_player_to_cell(player);
+    const RsmcPlayer opponent = rsmc_player_opposite(player);
+    const RsmcBoardCell opponent_cell = rsmc_player_to_cell(opponent);
+
+    for (int i = 0; i < RsmcDirectionsCount; i++) {
+        const RsmcCoords direction = RsmcDirections[i];
+        const uint8_t cells_to_flip =
+            count_flips_in_direction(board, coords, direction, player_cell, opponent_cell);
+
+        if (cells_to_flip > 0) {
+            return true;
+        }
+    }
+
+    return false;
+}
