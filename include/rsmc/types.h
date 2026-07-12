@@ -7,6 +7,7 @@
 #ifndef RSMC_TYPES_H
 #define RSMC_TYPES_H
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -107,7 +108,7 @@ typedef struct {
     uint8_t white_score;
     uint8_t black_score;
 } RsmcPlayersScore;
-_Static_assert(sizeof(RsmcPlayersScore) == 2, "unexpected padding in RsmcPlayersScore");
+static_assert(sizeof(RsmcPlayersScore) == 2, "unexpected padding in RsmcPlayersScore");
 
 /**
  * Stores score for both players and game status.
@@ -116,7 +117,7 @@ typedef struct {
     RsmcPlayersScore score;
     RsmcGameStatus game_status;
 } RsmcGameState;
-_Static_assert(sizeof(RsmcGameState) == 3, "unexpected padding in RsmcGameState");
+static_assert(sizeof(RsmcGameState) == 3, "unexpected padding in RsmcGameState");
 
 /**
  * Stores coords for the board. Coords might be invalid and negative.
@@ -125,7 +126,7 @@ typedef struct {
     int8_t x;
     int8_t y;
 } RsmcCoords;
-_Static_assert(sizeof(RsmcCoords) == 2, "unexpected padding in RsmcCoords");
+static_assert(sizeof(RsmcCoords) == 2, "unexpected padding in RsmcCoords");
 /**
  * @brief Checks if coords are valid for RsmcBoard.
  *
@@ -143,7 +144,7 @@ static inline bool rsmc_coords_is_valid(const RsmcCoords coords)
 typedef struct {
     RsmcBoardCell cells[RsmcBoardSize][RsmcBoardSize];
 } RsmcBoard;
-_Static_assert(sizeof(RsmcBoard) == 64, "unexpected padding in RsmcBoard");
+static_assert(sizeof(RsmcBoard) == 64, "unexpected padding in RsmcBoard");
 
 /**
  * @brief Stores valid moves.
@@ -158,7 +159,7 @@ typedef struct {
      */
     RsmcCoords coords[RsmcMaxValidMoves];
 } RsmcMoves;
-_Static_assert(sizeof(RsmcMoves) == 69, "unexpected padding in RsmcMoves");
+static_assert(sizeof(RsmcMoves) == 69, "unexpected padding in RsmcMoves");
 
 // type extensions
 
