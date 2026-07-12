@@ -71,7 +71,7 @@ typedef struct {
     int8_t y;
 } RsmcCoords;
 _Static_assert(sizeof(RsmcCoords) == 2, "unexpected padding in RsmcCoords");
-bool static inline rsmc_coords_is_valid(const RsmcCoords coords)
+static inline bool rsmc_coords_is_valid(const RsmcCoords coords)
 {
     return coords.x >= 0 && coords.y >= 0 && coords.x < RsmcBoardSize && coords.y < RsmcBoardSize;
 }
