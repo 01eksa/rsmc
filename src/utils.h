@@ -1,3 +1,9 @@
+/**
+ * @file utils.h
+ * @brief Utils, mostly type extensions. Private header.
+ *
+ */
+
 #ifndef RSMC_UTILS_H
 #define RSMC_UTILS_H
 

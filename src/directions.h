@@ -1,3 +1,8 @@
+/**
+ * @file directions.h
+ * @brief RsmcCoords constants for directions. Private header.
+ */
+
 #ifndef RSMC_DIRECTIONS_H
 #define RSMC_DIRECTIONS_H
 #include "rsmc/types.h"
