@@ -21,7 +21,14 @@ static const RsmcCoords RsmcUpLeft = {-1, -1};
 static const RsmcCoords RsmcDownLeft = {-1, 1};
 
 static const RsmcCoords RsmcDirections[] = {
-    RsmcUp, RsmcDown, RsmcLeft, RsmcRight, RsmcUpRight, RsmcDownRight, RsmcUpLeft, RsmcDownLeft,
+    {0, -1},  // Up
+    {0, 1},   // Down
+    {-1, 0},  // Left
+    {1, 0},   // Right
+    {1, -1},  // UpRight
+    {1, 1},   // DownRight
+    {-1, -1}, // UpLeft
+    {-1, 1},  // DownLeft
 };
 static const int RsmcDirectionsCount = sizeof(RsmcDirections) / sizeof(RsmcCoords);
 
