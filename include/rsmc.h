@@ -31,8 +31,6 @@ void rsmc_set_start_position(RsmcBoard *board);
  */
 bool rsmc_apply_move(RsmcBoard *board, RsmcCoords coords, RsmcPlayer player);
 
-uint8_t rsmc_get_player_score(const RsmcBoard *board, RsmcPlayer player);
-
 /**
  * @brief Calculates score of both players in one pass.
  *
