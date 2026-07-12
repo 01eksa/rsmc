@@ -36,10 +36,10 @@ static uint8_t count_flips_in_direction(const RsmcBoard *board, RsmcCoords coord
 void rsmc_set_start_position(RsmcBoard *board)
 {
     memset(board->cells, RsmcBoardCellEmpty, sizeof(board->cells));
-    board->cells[RsmcBoardSize / 2 - 1][RsmcBoardSize / 2 - 1] = RsmcBoardCellBlack;
-    board->cells[RsmcBoardSize / 2][RsmcBoardSize / 2] = RsmcBoardCellBlack;
-    board->cells[RsmcBoardSize / 2][RsmcBoardSize / 2 - 1] = RsmcBoardCellWhite;
-    board->cells[RsmcBoardSize / 2 - 1][RsmcBoardSize / 2] = RsmcBoardCellWhite;
+    board->cells[RsmcBoardSize / 2 - 1][RsmcBoardSize / 2 - 1] = RsmcBoardCellWhite;
+    board->cells[RsmcBoardSize / 2][RsmcBoardSize / 2] = RsmcBoardCellWhite;
+    board->cells[RsmcBoardSize / 2][RsmcBoardSize / 2 - 1] = RsmcBoardCellBlack;
+    board->cells[RsmcBoardSize / 2 - 1][RsmcBoardSize / 2] = RsmcBoardCellBlack;
 }
 
 bool rsmc_apply_move(RsmcBoard *board, const RsmcCoords coords, const RsmcPlayer player)
