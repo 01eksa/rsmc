@@ -99,6 +99,12 @@ static inline RsmcBoardCell rsmc_player_to_cell(const RsmcPlayer player)
     return player + 1;
 }
 
+// Assumes exactly two players (RsmcPlayerWhite/RsmcPlayerBlack).
+static inline RsmcPlayer rsmc_player_opposite(const RsmcPlayer player)
+{
+    return (RsmcPlayer)!player;
+}
+
 static inline RsmcCoords rsmc_coords_add(const RsmcCoords left, const RsmcCoords right)
 {
     RsmcCoords result;
@@ -115,7 +121,7 @@ static inline RsmcCoords rsmc_coords_sub(const RsmcCoords left, const RsmcCoords
     return result;
 }
 
-static inline RsmcBoardCell *rsmc_cell_at(RsmcBoard *board, RsmcCoords coords)
+static inline RsmcBoardCell *rsmc_cell_at(RsmcBoard *board, const RsmcCoords coords)
 {
     return &board->cells[coords.y][coords.x];
 }
