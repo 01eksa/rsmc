@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.26)
+cmake_minimum_required(VERSION 3.28)
 project(rsmc C)
 
 set(CMAKE_C_STANDARD 11)
@@ -37,6 +37,8 @@ if(RSMC_BUILD_TESTS)
     FetchContent_Declare(unity
             URL https://github.com/ThrowTheSwitch/Unity/archive/refs/tags/v2.6.1.zip
             URL_HASH SHA256=a27c9779a6ca56a0c5d9b59e139d1c7992eb85254a00add52eaf74a5254aa9f0
+            EXCLUDE_FROM_ALL
+            SYSTEM
     )
     FetchContent_MakeAvailable(unity)
 
