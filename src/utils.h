@@ -36,7 +36,7 @@ static inline RsmcPlayer rsmc_player_opposite(const RsmcPlayer player)
 }
 
 /**
- * Adds to coords and returns the result.
+ * Adds two coords and returns the result.
  *
  * @param left left coords.
  * @param right right coords.
