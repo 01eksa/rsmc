@@ -58,14 +58,6 @@ bool rsmc_is_move_valid(const RsmcBoard *board, RsmcCoords coords, RsmcPlayer pl
  */
 RsmcMoves rsmc_get_valid_moves(const RsmcBoard *board, RsmcPlayer player);
 
-/**
- * @brief Extracts game status. Wrapper around rsmc_get_game_state.
- *
- * @param board a constant pointer to RsmcBoard.
- * @return Current RsmcGameStatus.
- */
-RsmcGameStatus rsmc_get_game_status(const RsmcBoard *board);
-
 /** @brief Analyzes current game state: finds player score and game status.
  *
  * @param board a constant pointer to RsmcBoard.

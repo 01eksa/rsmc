@@ -203,8 +203,3 @@ RsmcGameState rsmc_get_game_state(const RsmcBoard *board)
     const RsmcGameState result = {score, game_status};
     return result;
 }
-
-RsmcGameStatus rsmc_get_game_status(const RsmcBoard *board)
-{
-    return rsmc_get_game_state(board).game_status;
-}
