@@ -171,11 +171,11 @@ RsmcGameState rsmc_get_game_state(const RsmcBoard *board)
             const RsmcBoardCell cell = *rsmc_cell_at_const(board, coords);
 
             switch (cell) {
-                case RsmcBoardCellWhite:
-                    score.white_score++;
-                    break;
                 case RsmcBoardCellBlack:
                     score.black_score++;
+                    break;
+                case RsmcBoardCellWhite:
+                    score.white_score++;
                     break;
                 case RsmcBoardCellEmpty:
                     if (game_finished && (rsmc_is_move_valid(board, coords, RsmcPlayerWhite) ||
@@ -192,10 +192,10 @@ RsmcGameState rsmc_get_game_state(const RsmcBoard *board)
 
     if (!game_finished) {
         game_status = RsmcGameStatusContinue;
-    } else if (score.white_score > score.black_score) {
-        game_status = RsmcGameStatusWhiteWin;
     } else if (score.black_score > score.white_score) {
         game_status = RsmcGameStatusBlackWin;
+    } else if (score.white_score > score.black_score) {
+        game_status = RsmcGameStatusWhiteWin;
     } else {
         game_status = RsmcGameStatusDraw;
     }

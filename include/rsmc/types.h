@@ -42,8 +42,8 @@ enum {
  */
 typedef uint8_t RsmcPlayer;
 enum {
-    RsmcPlayerWhite = 0,
-    RsmcPlayerBlack = 1,
+    RsmcPlayerBlack = 0,
+    RsmcPlayerWhite = 1,
     RsmcPlayerCount = 2,
 };
 /**
@@ -58,14 +58,14 @@ static inline bool rsmc_player_is_valid(const RsmcPlayer player)
 }
 
 /**
- * @brief Game status (continue, draw, white win, black win).
+ * @brief Game status (continue, draw, black win, white win).
  */
 typedef uint8_t RsmcGameStatus;
 enum {
     RsmcGameStatusContinue = 0,
     RsmcGameStatusDraw = 1,
-    RsmcGameStatusWhiteWin = 2,
-    RsmcGameStatusBlackWin = 3,
+    RsmcGameStatusBlackWin = 2,
+    RsmcGameStatusWhiteWin = 3,
     RsmcGameStatusCount = 4,
 };
 /**
@@ -80,13 +80,13 @@ static inline bool rsmc_game_status_is_valid(const RsmcGameStatus status)
 }
 
 /**
- * @brief Board cell (empty, white, black)
+ * @brief Board cell (empty, black, white)
  */
 typedef uint8_t RsmcBoardCell;
 enum {
     RsmcBoardCellEmpty = 0,
-    RsmcBoardCellWhite = 1,
-    RsmcBoardCellBlack = 2,
+    RsmcBoardCellBlack = 1,
+    RsmcBoardCellWhite = 2,
     RsmcBoardCellCount = 3,
 };
 /**
@@ -106,8 +106,8 @@ static inline bool rsmc_board_cell_is_valid(const RsmcBoardCell cell)
  * @brief Stores score fot both players.
  */
 typedef struct {
-    uint8_t white_score;
     uint8_t black_score;
+    uint8_t white_score;
 } RsmcPlayersScore;
 static_assert(sizeof(RsmcPlayersScore) == 2, "unexpected padding in RsmcPlayersScore");
 
