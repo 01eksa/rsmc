@@ -49,6 +49,7 @@ ctest --test-dir build -C Release -V --timeout 120
 You can see [full documentation here](https://01eksa.github.io/rsmc/).
 
 ## Example
+See full code [here](https://github.com/01eksa/rsmc-example).
 ```c++
 #include "rsmc.h"
 #include <assert.h>
