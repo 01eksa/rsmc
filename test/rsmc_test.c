@@ -175,7 +175,7 @@ void test_rsmc_get_players_score_should_return_right_score(void)
     };
     RsmcBoard board;
     memcpy(board.cells, cells, sizeof(board.cells));
-    const RsmcPlayersScore expected = {1, 4};
+    const RsmcPlayersScore expected = {.black_score = 4, .white_score = 1};
 
     const RsmcPlayersScore actual = rsmc_get_players_score(&board);
 
@@ -386,7 +386,7 @@ void test_rsmc_get_game_state_should_return_continue_and_valid_score(void)
     memcpy(board.cells, cells, sizeof(board.cells));
 
     const RsmcGameStatus expected_game_status = RsmcGameStatusContinue;
-    const RsmcPlayersScore expected_score = {8, 8};
+    const RsmcPlayersScore expected_score = {.black_score = 8, .white_score = 8};
 
     const RsmcGameState actual_state = rsmc_get_game_state(&board);
 
@@ -413,7 +413,7 @@ void test_rsmc_get_game_state_should_return_draw_and_valid_score(void)
     memcpy(board.cells, cells, sizeof(board.cells));
 
     const RsmcGameStatus expected_game_status = RsmcGameStatusDraw;
-    const RsmcPlayersScore expected_score = {8, 8};
+    const RsmcPlayersScore expected_score ={.black_score = 8, .white_score = 8};
 
     const RsmcGameState actual_state = rsmc_get_game_state(&board);
 
@@ -438,7 +438,7 @@ void test_rsmc_get_game_state_should_return_white_win_and_valid_score(void)
     memcpy(board.cells, cells, sizeof(board.cells));
 
     const RsmcGameStatus expected_game_status = RsmcGameStatusWhiteWin;
-    const RsmcPlayersScore expected_score = {4, 0};
+    const RsmcPlayersScore expected_score = {.black_score = 0, .white_score = 4};
 
     const RsmcGameState actual_state = rsmc_get_game_state(&board);
 
@@ -535,7 +535,7 @@ void test_rsmc_get_game_state_should_return_black_win_and_valid_score(void)
     memcpy(board.cells, cells, sizeof(board.cells));
 
     const RsmcGameStatus expected_game_status = RsmcGameStatusBlackWin;
-    const RsmcPlayersScore expected_score = {26, 38};
+    const RsmcPlayersScore expected_score = {.black_score = 38, .white_score = 26};
 
     const RsmcGameState actual_state = rsmc_get_game_state(&board);
 
