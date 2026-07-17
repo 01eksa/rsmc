@@ -8,6 +8,7 @@
 #define RSMC_UTILS_H
 
 #include "rsmc/types.h"
+#include <assert.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,6 +22,8 @@ extern "C" {
  */
 static inline RsmcBoardCell rsmc_player_to_cell(const RsmcPlayer player)
 {
+    static_assert(RsmcPlayerBlack + 1 == RsmcBoardCellBlack, "cannot convert black player to cell");
+    static_assert(RsmcPlayerWhite + 1 == RsmcBoardCellWhite, "cannot convert white player to cell");
     return player + 1;
 }
 
@@ -32,6 +35,8 @@ static inline RsmcBoardCell rsmc_player_to_cell(const RsmcPlayer player)
  */
 static inline RsmcPlayer rsmc_player_opposite(const RsmcPlayer player)
 {
+    static_assert(RsmcPlayerBlack == !RsmcPlayerWhite && RsmcPlayerWhite == !RsmcPlayerBlack,
+                  "cannot toggle players with !");
     return (RsmcPlayer)!player; // assume exactly two players (RsmcPlayerWhite/RsmcPlayerBlack).
 }
 
