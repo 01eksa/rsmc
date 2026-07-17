@@ -6,9 +6,9 @@
 
 #include <string.h>
 
-#include "directions.h"
+#include "private/directions.h"
+#include "private/utils.h"
 #include "rsmc.h"
-#include "utils.h"
 
 static uint8_t count_flips_in_direction(const RsmcBoard *board, RsmcCoords coords_to_check,
                                         const RsmcCoords direction, const RsmcBoardCell player_cell,
