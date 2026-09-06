@@ -1,4 +1,5 @@
 # RSMC
+
 Reversi stateless model in C
 ---
 [![License: LGPL v2.1](https://img.shields.io/badge/License-LGPL_v2.1-blue.svg)](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html)
@@ -7,15 +8,29 @@ Reversi stateless model in C
 ---
 
 # Why RSMC?
+
 * **Simplicity:** rsmc is written in a fully functional style and does just what you expect.
 * **Performance:** rsmc is fast and memory-efficient. It gives you all functionality without any overhead.
-* **Predictability:** rsmc doesn't allocate the memory and always validates input data. The only case with UB is call with an invalid pointer.
+* **Predictability:** rsmc doesn't allocate the memory and always validates input data. The only case with UB is call
+  with an invalid pointer.
 
 # Quick Start
+
 ## Precompiled binary
-You can find ready-to-use binaries for Linux (x64), Windows (x64) and macOS (ARM64) [here](https://github.com/01eksa/rsmc/releases).
+
+You can find ready-to-use binaries [here](https://github.com/01eksa/rsmc/releases).
+
+### Compability:
+
+|       | Linux                                   | Windows                        | macOS             |
+|-------|-----------------------------------------|--------------------------------|-------------------|
+| x64   | GLIBC 2.35+ (Ubuntu 22.04+, Debian 12+) | Windows 10 / 11 / Server 2022+ | macOS 15+ (Intel) |
+| ARM64 | GLIBC 2.35+ (Ubuntu 22.04+, Debian 12+) | Windows 11 ARM64               | macOS 15+ (ARM64) |
+| x86   | -                                       | -                              | -                 |
+If you need support for older operating systems or the x86 architecture, you can build it from source.
 
 ## Include via CMake
+
 ```cmake
 include(FetchContent)
 FetchContent_Declare(rsmc
@@ -28,24 +43,29 @@ target_link_libraries(your_project PRIVATE rsmc)
 ```
 
 ## Build from source
+
 Clone repository:
+
 ```bash
 git clone https://github.com/01eksa/rsmc.git
 cd rsmc
 ```
 
 Build:
+
 ```bash
 cmake -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release
 ```
 
 Run tests:
+
 ```bash
 ctest --test-dir build -C Release -V --timeout 120
 ```
 
 # API
+
 You can see [full documentation here](https://01eksa.github.io/rsmc/).
 
 ## Example
@@ -76,7 +96,9 @@ int main(void)
 
     RsmcBoard board;
     rsmc_set_start_position(&board);
-    RsmcGameState current_state;
+    RsmcGameState current_state = rsmc_get_game_state(&board);
+
+    show_game_state(current_state, &board);
 
     while (true) {
         // process moves

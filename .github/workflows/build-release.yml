@@ -2,21 +2,37 @@ name: Build Release
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag name of the existing release (e.g. v0.1.0)'
+        required: true
+        type: string
+
 jobs:
   build:
     strategy:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-latest
+          - os: ubuntu-22.04
             label: linux-x64
             ext: tar.gz
-          - os: windows-latest
+          - os: ubuntu-22.04-arm
+            label: linux-arm64
+            ext: tar.gz
+          - os: windows-2022
             label: windows-x64
             ext: zip
-          - os: macos-latest
+          - os: windows-11-arm
+            label: windows-arm64
+            ext: zip
+          - os: macos-15
             label: macos-arm64
+            ext: tar.gz
+          - os: macos-15-intel
+            label: macos-x64
             ext: tar.gz
     runs-on: ${{ matrix.os }}
     steps:
@@ -38,18 +54,18 @@ jobs:
       - name: Archive package (tar.gz)
         if: matrix.ext == 'tar.gz'
         working-directory: install
-        run: tar czvf ../rsmc-${{ matrix.label }}-${{ github.ref_name }}.tar.gz .
+        run: tar czvf ../rsmc-${{ matrix.label }}-${{ github.event.inputs.tag || github.ref_name }}.tar.gz .
 
       - name: Archive package (zip)
         if: matrix.ext == 'zip'
         working-directory: install
-        run: cmake -E tar cfv ../rsmc-${{ matrix.label }}-${{ github.ref_name }}.zip --format=zip .
+        run: cmake -E tar cfv ../rsmc-${{ matrix.label }}-${{ github.event.inputs.tag || github.ref_name }}.zip --format=zip .
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: rsmc-${{ matrix.label }}
-          path: rsmc-${{ matrix.label }}-${{ github.ref_name }}.${{ matrix.ext }}
+          path: rsmc-${{ matrix.label }}-${{ github.event.inputs.tag || github.ref_name }}.${{ matrix.ext }}
 
   docs:
     needs: build
@@ -86,7 +102,7 @@ jobs:
         uses: actions/deploy-pages@v4
 
   release:
-    needs: [build, deploy-docs]
+    needs: [ build, deploy-docs ]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -101,10 +117,16 @@ jobs:
           path: dist
           merge-multiple: true
 
-      - name: Create GitHub Release
+      - name: Create or update release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "${{ github.ref_name }}" dist/* \
-            --title "${{ github.ref_name }}" \
-            --generate-notes
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release upload "$TAG" dist/* --clobber
+          else
+            gh release create "$TAG" dist/* \
+              --title "$TAG" \
+              --generate-notes
+          fi
