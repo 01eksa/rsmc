@@ -20,7 +20,7 @@ Reversi stateless model in C
 
 You can find ready-to-use binaries [here](https://github.com/01eksa/rsmc/releases).
 
-### Compability:
+### Compatibility:
 
 |       | Linux                                   | Windows                        | macOS             |
 |-------|-----------------------------------------|--------------------------------|-------------------|
