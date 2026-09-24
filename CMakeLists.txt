@@ -45,3 +45,9 @@ if(RSMC_BUILD_TESTS)
     enable_testing()
     add_subdirectory(test)
 endif()
+
+option(RSMC_BENCHMARK "Bench rmsc on your hardware" ${PROJECT_IS_TOP_LEVEL})
+
+if (RSMC_BENCHMARK)
+    add_subdirectory(benchmark)
+endif ()

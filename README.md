@@ -46,22 +46,27 @@ target_link_libraries(your_project PRIVATE rsmc)
 
 Clone repository:
 
-```bash
+```shell
 git clone https://github.com/01eksa/rsmc.git
 cd rsmc
 ```
 
 Build:
 
-```bash
+```shell
 cmake -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release
 ```
 
 Run tests:
 
-```bash
+```shell
 ctest --test-dir build -C Release -V --timeout 120
+```
+
+Run benchmark:
+```shell
+build/benchmark/rsmcbench
 ```
 
 # API
