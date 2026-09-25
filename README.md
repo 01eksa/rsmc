@@ -5,14 +5,14 @@ Reversi stateless model in C
 [![License: LGPL v2.1](https://img.shields.io/badge/License-LGPL_v2.1-blue.svg)](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html)
 [![Latest Stable Version](https://img.shields.io/github/v/release/01eksa/rsmc)](https://github.com/01eksa/rsmc/releases)
 [![Tests](https://github.com/01eksa/rsmc/actions/workflows/tests.yml/badge.svg)](https://github.com/01eksa/rsmc/actions)
+[![CodeQL](https://github.com/01eksa/rsmc/actions/workflows/codeql.yml/badge.svg)](https://github.com/01eksa/rsmc/actions/workflows/codeql.yml)
 ---
 
 # Why RSMC?
 
 * **Simplicity:** rsmc is written in a fully functional style and does just what you expect.
-* **Performance:** rsmc is fast and memory-efficient. It gives you all functionality without any overhead.
-* **Predictability:** rsmc doesn't allocate the memory and always validates input data. The only case with UB is call
-  with an invalid pointer.
+* **Performance:** rsmc is fast and memory-efficient. It gives you all basic functionality without any overhead.
+* **Safety:** rsmc doesn't allocate memory or use pointers since 1.0, so it's completely memory-safe.
 
 # Quick Start
 
@@ -26,8 +26,13 @@ You can find ready-to-use binaries [here](https://github.com/01eksa/rsmc/release
 |-------|-----------------------------------------|--------------------------------|-------------------|
 | x64   | GLIBC 2.35+ (Ubuntu 22.04+, Debian 12+) | Windows 10 / 11 / Server 2022+ | macOS 15+ (Intel) |
 | ARM64 | GLIBC 2.35+ (Ubuntu 22.04+, Debian 12+) | Windows 11 ARM64               | macOS 15+ (ARM64) |
-| x86   | -                                       | -                              | -                 |
-If you need support for older operating systems or the x86 architecture, you can build it from source.
+
+I tested rsmc on a few architectures. On x64, AVX2 support provides significantly better performance, so I recommend
+using the x86-64-v3 binary if your CPU supports it. Minimal requirements: any AMD Ryzen, Intel starting with Haswell
+(4th gen).\
+On ARM, the difference is less than 2%, so I recommend ARMv8-A for maximum compatibility.\
+\
+If you need support for other operating systems or architectures, you can build it from source.
 
 ## Include via CMake
 
@@ -65,6 +70,7 @@ ctest --test-dir build -C Release -V --timeout 120
 ```
 
 Run benchmark:
+
 ```shell
 build/benchmark/rsmcbench
 ```
@@ -74,22 +80,29 @@ build/benchmark/rsmcbench
 You can see [full documentation here](https://01eksa.github.io/rsmc/).
 
 ## Example
+
 See full code [here](https://github.com/01eksa/rsmc-example).
+
 ```c++
 #include "rsmc.h"
-#include <assert.h>
 
-RsmcCoords ask_move(const RsmcMoves valid_moves)
+#include <stdbool.h>
+#include <stdio.h>
+
+#define CLEAR "\033[2J\033[H"
+
+static RsmcBitMask ask_move(const RsmcBitMap valid_moves, const RsmcPlayer player)
 {
     // ask move with validation
 }
 
-void show_game_state(const RsmcGameState state, const RsmcBoard *board)
+static void show_game_state(const RsmcGameState state, const RsmcBoard board,
+                            const RsmcBitMask valid_moves)
 {
     // show game state
 }
 
-void show_game_result(const RsmcGameStatus result)
+static void show_game_result(const RsmcGameStatus result)
 {
     // greet players after game
 }
@@ -98,36 +111,25 @@ int main(void)
 {
     // first setup
     RsmcPlayer current_player = RsmcPlayerBlack;
+    RsmcBoard board = rsmc_get_start_position();
+    RsmcGameState current_state = rsmc_get_game_state(board);
 
-    RsmcBoard board;
-    rsmc_set_start_position(&board);
-    RsmcGameState current_state = rsmc_get_game_state(&board);
-
-    show_game_state(current_state, &board);
-
-    while (true) {
+    do {
         // process moves
-        const RsmcMoves valid_moves = rsmc_get_valid_moves(&board, current_player);
+        const RsmcBitMap valid_moves = rsmc_get_valid_moves(board, current_player);
+        show_game_state(current_state, board, valid_moves);
 
-        if (valid_moves.count > 0) {
-            const RsmcCoords chosen_move = ask_move(valid_moves);
-            const bool ok = rsmc_apply_move(&board, chosen_move, current_player);
-            assert(ok); // chosen_move is guaranteed valid, taken from valid_moves
+        if (valid_moves) {
+            const RsmcBitMask chosen_move = ask_move(valid_moves, current_player);
+            board = rsmc_apply_move(board, chosen_move, current_player);
         }
 
-        // update game state
-        current_state = rsmc_get_game_state(&board);
-        show_game_state(current_state, &board);
-
-        if (current_state.game_status != RsmcGameStatusContinue) {
-            break; // game end
-        }
-
+        // update info about game state
         current_player = !current_player; // toggling guaranteed by API
-    }
+        current_state = rsmc_get_game_state(board);
+    } while (current_state.game_status == RsmcGameStatusContinue);
 
     show_game_result(current_state.game_status);
-
     return 0;
 }
 ```
