@@ -1,0 +1,9 @@
+#ifndef RSMC_VERSION_H
+#define RSMC_VERSION_H
+
+#define RSMC_SO_VERSION 1
+#define RSMC_VERSION_MAJOR 1
+#define RSMC_VERSION_MINOR 0
+#define RSMC_VERSION_PATCH 0
+
+#endif // RSMC_VERSION_H
