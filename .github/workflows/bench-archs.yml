@@ -1,0 +1,86 @@
+name: Bench architectures
+on:
+  workflow_dispatch:
+    inputs:
+      games:
+        description: 'Games to play'
+        required: false
+        type: number
+        default: 100000
+
+jobs:
+  main:
+    strategy:
+      fail-fast: false
+      matrix:
+        targets:
+          - os: ubuntu-24.04
+            archs: "x86-64 x86-64-v2 x86-64-v3 x86-64-v4"
+
+          - os: ubuntu-24.04-arm
+            archs: "armv8-a armv8.2-a armv9-a"
+
+    runs-on: ${{ matrix.targets.os }}
+    defaults:
+      run:
+        shell: bash
+    env:
+      ARCHS: ${{ matrix.targets.archs }}
+      GAMES: ${{ github.event.inputs.games }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build
+        run: |
+          for arch in $ARCHS; do
+            cmake -B build-"$arch" -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Release -G Ninja -DCMAKE_C_FLAGS="-march=$arch";
+            ninja -C build-"$arch";
+          done
+
+      - name: Run benchmark
+        continue-on-error: true
+        run: |
+          mkdir -p /tmp/rsmc
+          touch /tmp/rsmc/result.rsmcbench
+          >/tmp/rsmc/result.rsmcbench
+          for arch in $ARCHS; do
+            echo "$arch" >>/tmp/rsmc/result.rsmcbench
+            build-"$arch"/benchmark/rsmcbench "$GAMES" >>/tmp/rsmc/result.rsmcbench
+          echo >>/tmp/rsmc/result.rsmcbench
+          done
+
+      - name: Make report
+        run: |
+          import os
+          
+          with open('/tmp/rsmc/result.rsmcbench') as f:
+            result = f.read().strip()
+          summary = f'{result}\n'
+          
+          results = []
+          for r in result.split('\n\n'):
+            lines = r.split('\n')
+            if len(lines) == 1:
+              summary += f'WARNING: {lines[0]} is not supported\n\n'
+              continue
+            name = lines[0]
+            result = int(lines[-1].split()[-1])
+            results.append((name, result,))
+          
+          results.sort(key=lambda r: r[1])
+          worst_name = results[0][0]
+          worst_result = results[0][1]
+          
+          summary += f'\n{worst_name}: baseline\n'
+          for r in results[1:]:
+            k = r[1] / worst_result
+            summary += f'{r[0]}: +{k*100-100:.2f}%\n'
+          
+          print(summary)
+          
+          summary_file = os.environ.get('GITHUB_STEP_SUMMARY')
+          if summary_file:
+            with open(summary_file, 'a', encoding='utf-8') as f:
+              f.write(f"```text\n{summary}\n```\n")
+        shell: python

@@ -11,22 +11,28 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    timeout-minutes: 20
+  Tests:
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest, windows-latest, macos-latest ]
+        os: [ ubuntu-22.04, macos-15-intel, windows-2022, ubuntu-22.04-arm, macos-15, windows-11-arm ]
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
 
       - name: Configure
-        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+        run: cmake -B build -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS="-O3 ${{ matrix.arch }}" -G Ninja
 
       - name: Build
-        run: cmake --build build --config Release
+        run: ninja -C build -v
 
       - name: Test
-        run: ctest --test-dir build -C Release -V --timeout 120
+        run: ctest --test-dir build -C Release

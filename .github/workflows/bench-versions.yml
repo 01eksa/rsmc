@@ -1,0 +1,91 @@
+name: Bench versions
+on:
+  workflow_dispatch:
+    inputs:
+      older:
+        description: 'Enter tag or commit of older release'
+        required: true
+        type: string
+      newer:
+        description: 'Enter tag or commit of newer release'
+        required: true
+        type: string
+      games:
+        description: 'Games to play'
+        required: false
+        type: number
+        default: 100000
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    env:
+      BUILD_OLDER: build-${{ github.event.inputs.older }}
+      BUILD_NEWER: build-${{ github.event.inputs.newer }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Create worktree
+        run: git worktree add --detach /tmp/rsmc/ HEAD
+
+      - name: Checkout older
+        working-directory: /tmp/rsmc/
+        run: git checkout ${{ github.event.inputs.older }}
+
+      - name: Configure older
+        working-directory: /tmp/rsmc/
+        run: cmake -B "$BUILD_OLDER" -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Release -G Ninja
+
+      - name: Build older
+        working-directory: /tmp/rsmc/
+        run: ninja -C "$BUILD_OLDER"
+
+      - name: Checkout newer
+        working-directory: /tmp/rsmc/
+        run: git checkout ${{ github.event.inputs.newer }}
+
+      - name: Configure newer
+        working-directory: /tmp/rsmc/
+        run: cmake -B "$BUILD_NEWER" -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Release -G Ninja
+
+      - name: Build newer
+        working-directory: /tmp/rsmc/
+        run: ninja -C "$BUILD_NEWER"
+
+      - name: Run benchmark
+        working-directory: /tmp/rsmc/
+        run: |
+          touch /tmp/rsmc/result.rsmcbench
+          "$BUILD_OLDER"/benchmark/rsmcbench ${{ github.event.inputs.games }} >>/tmp/rsmc/result.rsmcbench
+          echo >>/tmp/rsmc/result.rsmcbench
+          "$BUILD_NEWER"/benchmark/rsmcbench ${{ github.event.inputs.games }} >>/tmp/rsmc/result.rsmcbench
+
+      - name: Make report
+        working-directory: /tmp/rsmc/
+        run: |
+          import os
+          
+          with open('/tmp/rsmc/result.rsmcbench') as f:
+            result = f.read().strip()
+          
+          old, new = result.split('\n\n')
+          old_name = old.split('\n')[0].split()[-1]
+          new_name = new.split('\n')[0].split()[-1]
+          k = int(new.split('\n')[-1].split()[-1])/int(old.split('\n')[-1].split()[-1])
+          perc = k * 100 - 100
+        
+          summary = f'{result}\n'
+          summary += f'{new_name} is {abs(perc):.2f}% {'faster' if perc >= 0 else 'slower'} compared to {old_name}.\n'
+          print(summary)
+          
+          summary_file = os.environ.get('GITHUB_STEP_SUMMARY')
+          if summary_file:
+            with open(summary_file, 'a', encoding='utf-8') as f:
+              f.write(f"```text\n{summary}\n```\n")
+        shell: python

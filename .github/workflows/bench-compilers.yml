@@ -1,0 +1,137 @@
+name: Bench compilers
+on:
+  workflow_dispatch:
+    inputs:
+      games:
+        description: 'Games to play'
+        required: false
+        type: number
+        default: 100000
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure GCC
+        run: cmake -B build-gcc -DCMAKE_C_COMPILER=gcc -DCMAKE_BUILD_TYPE=Release -G Ninja
+
+      - name: Build GCC
+        run: ninja -C build-gcc
+
+      - name: Configure Clang
+        run: cmake -B build-clang -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Release -G Ninja
+
+      - name: Build Clang
+        run: ninja -C build-clang
+
+      - name: Run benchmark
+        run: |
+          mkdir -p /tmp/rsmc
+          touch /tmp/rsmc/result.rsmcbench
+          >/tmp/rsmc/result.rsmcbench
+          echo "gcc" >>/tmp/rsmc/result.rsmcbench
+          build-gcc/benchmark/rsmcbench ${{ github.event.inputs.games }} >>/tmp/rsmc/result.rsmcbench
+          echo >>/tmp/rsmc/result.rsmcbench
+          echo "clang" >>/tmp/rsmc/result.rsmcbench
+          build-clang/benchmark/rsmcbench ${{ github.event.inputs.games }} >>/tmp/rsmc/result.rsmcbench
+
+      - name: Make report
+        run: |
+          import os
+          
+          with open('/tmp/rsmc/result.rsmcbench') as f:
+            result = f.read().strip()
+          summary = f'{result}\n'
+          
+          results = []
+          for r in result.split('\n\n'):
+            lines = r.split('\n')
+            arch_name = lines[0]
+            arch_result = int(lines[-1].split()[-1])
+            results.append((arch_name, arch_result,))
+          
+          results.sort(key=lambda r: r[1])
+          worst_name = results[0][0]
+          worst_result = results[0][1]
+          
+          summary += f'\n{worst_name}: baseline\n'
+          for r in results[1:]:
+            k = r[1] / worst_result
+            summary += f'{r[0]}: +{k*100-100:.2f}%'
+          
+          print(summary)
+          
+          summary_file = os.environ.get('GITHUB_STEP_SUMMARY')
+          if summary_file:
+            with open(summary_file, 'a', encoding='utf-8') as f:
+              f.write(f"```text\n{summary}\n```\n")
+        shell: python
+
+  windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure MSVC
+        run: cmake -B build-msvc -DCMAKE_BUILD_TYPE=Release -G "Visual Studio 18 2026"
+
+      - name: Build MSVC
+        run: cmake --build build-msvc --config Release
+
+      - name: Configure Clang
+        run: cmake -B build-clang -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Release -G Ninja
+
+      - name: Build Clang
+        run: ninja -C build-clang
+
+      - name: Run benchmark
+        run: |
+          touch result.rsmcbench
+          >result.rsmcbench
+          echo "msvc" >>result.rsmcbench
+          build-msvc/benchmark/Release/rsmcbench.exe ${{ github.event.inputs.games }} >>result.rsmcbench
+          echo >>result.rsmcbench
+          echo "clang" >>result.rsmcbench
+          build-clang/benchmark/rsmcbench.exe ${{ github.event.inputs.games }} >>result.rsmcbench
+
+      - name: Make report
+        run: |
+          import os
+          
+          with open('result.rsmcbench') as f:
+            result = f.read().strip()
+          summary = f'{result}\n'
+          
+          results = []
+          for r in result.split('\n\n'):
+            lines = r.split('\n')
+            arch_name = lines[0]
+            arch_result = int(lines[-1].split()[-1])
+            results.append((arch_name, arch_result,))
+          
+          results.sort(key=lambda r: r[1])
+          worst_name = results[0][0]
+          worst_result = results[0][1]
+          
+          summary += f'\n{worst_name}: baseline\n'
+          for r in results[1:]:
+            k = r[1] / worst_result
+            summary += f'{r[0]}: +{k*100-100:.2f}%'
+          
+          print(summary)
+          
+          summary_file = os.environ.get('GITHUB_STEP_SUMMARY')
+          if summary_file:
+            with open(summary_file, 'a', encoding='utf-8') as f:
+              f.write(f"```text\n{summary}\n```\n")
+        shell: python
