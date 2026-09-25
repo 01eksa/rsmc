@@ -1,5 +1,8 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (c) 2026 01eksa
+
 /**
- * @file rsmc.h
+ * @file rsmc.c
  * @brief Reversi stateless model in C - implementation.
  *
  */

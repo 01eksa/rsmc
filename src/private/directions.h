@@ -1,6 +1,9 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (c) 2026 01eksa
+
 /**
  * @file directions.h
- * @brief RsmcCoords constants for directions. Private header.
+ * @brief Constants for directions. Private header.
  */
 
 #ifndef RSMC_DIRECTIONS_H

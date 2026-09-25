@@ -1,3 +1,12 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (c) 2026 01eksa
+
+/**
+ * @file version.h
+ * @brief Macros for rsmc version.
+ */
+
+
 #ifndef RSMC_VERSION_H
 #define RSMC_VERSION_H
 

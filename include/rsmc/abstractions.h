@@ -1,6 +1,9 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (c) 2026 01eksa
+
 /**
- * @file rsmc.h
- * @brief Types and constants for rsmc.
+ * @file abstractions.h
+ * @brief Thin abstract layer for rsmc.
  *
  */
 
