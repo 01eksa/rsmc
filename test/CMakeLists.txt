@@ -8,9 +8,9 @@ if(WIN32)
     # build-tree directory (multi-config generator puts each target under
     # its own subfolder), so copy it next to rsmc_test.exe after linking.
     add_custom_command(TARGET rsmc_test POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
             $<TARGET_RUNTIME_DLLS:rsmc_test>
             $<TARGET_FILE_DIR:rsmc_test>
-        COMMAND_EXPAND_LISTS
+            COMMAND_EXPAND_LISTS
     )
 endif()
