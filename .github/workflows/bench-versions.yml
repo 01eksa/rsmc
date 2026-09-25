@@ -80,7 +80,7 @@ jobs:
           k = int(new.split('\n')[-1].split()[-1])/int(old.split('\n')[-1].split()[-1])
           perc = k * 100 - 100
         
-          summary = f'{result}\n'
+          summary = f'{result}\n\n'
           summary += f'{new_name} is {abs(perc):.2f}% {'faster' if perc >= 0 else 'slower'} compared to {old_name}.\n'
           print(summary)
           
