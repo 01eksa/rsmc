@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arch: [ x86-64 ]
+        arch: [ x86-64, x86-64-v3 ]
         target:
           - os: ubuntu-22.04
             label: linux
