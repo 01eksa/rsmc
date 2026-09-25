@@ -88,9 +88,8 @@ int main(int argc, char **argv)
     const double gps = (double)measurements.games / measurements.seconds;
     const double mps = (double)measurements.moves / measurements.seconds;
 
-    printf("\nResults:\n");
-    printf("games per second: %.0f\n", gps);
-    printf("moves per second: %.0f\n", mps);
+    printf("Games per second: %.0f\n", gps);
+    printf("Moves per second: %.0f\n", mps);
 
     return 0;
 }
