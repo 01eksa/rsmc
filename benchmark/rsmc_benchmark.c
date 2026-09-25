@@ -30,39 +30,38 @@ typedef struct {
 static int simulate_game(void)
 {
     int moves_played = 0;
-    RsmcBoard board;
-    rsmc_set_start_position(&board);
+    RsmcBoard board = rsmc_get_start_position();
     RsmcPlayer player = RsmcPlayerBlack;
 
     while (true) {
-        const RsmcMoves moves = rsmc_get_valid_moves(&board, player);
-        if (!moves.count) {
-            const RsmcGameStatus status = rsmc_get_game_state(&board).game_status;
+        const RsmcBitMap moves = rsmc_get_valid_moves(board, player);
+        if (!moves) {
+            const RsmcGameStatus status = rsmc_get_game_state(board).game_status;
             if (status != RsmcGameStatusContinue)
                 return moves_played;
             player = !player;
             continue;
         }
 
-        const RsmcCoords move = moves.coords[xorshift32() % moves.count];
-        rsmc_apply_move(&board, move, player);
+        const RsmcBitMask move = pick_random_bit(moves);
+        board = rsmc_apply_move(board, move, player);
 
         player = !player;
         moves_played++;
     }
 }
 
-static Performance measure_games(const unsigned long games)
+static Performance measure_games(const unsigned long iterations)
 {
     volatile uint64_t moves = 0;
     const double start = sec_now();
 
-    for (unsigned long i = 0; i < games; i++) {
+    for (unsigned long i = 0; i < iterations; i++) {
         moves += simulate_game();
     }
 
     const double end = sec_now();
-    const Performance result = {.games = games, .moves = moves, .seconds = end - start};
+    const Performance result = {.games = iterations, .moves = moves, .seconds = end - start};
     return result;
 }
 
@@ -81,14 +80,15 @@ int main(int argc, char **argv)
         }
     }
 
-    printf("Benchmark for rsmc v0.1.0\n");
-    printf("Games: %lu\n", games);
+    printf("Benchmark for rsmc v%d.%d.%d\n", RSMC_VERSION_MAJOR, RSMC_VERSION_MINOR, RSMC_VERSION_PATCH);
+    printf("Iterations: %lu\n", games);
     const Performance measurements = measure_games(games);
-    printf("Time:  %fs\n", measurements.seconds);
+    printf("Time: %fs\n", measurements.seconds);
 
     const double gps = (double)measurements.games / measurements.seconds;
     const double mps = (double)measurements.moves / measurements.seconds;
 
+    printf("\nResults:\n");
     printf("games per second: %.0f\n", gps);
     printf("moves per second: %.0f\n", mps);
 

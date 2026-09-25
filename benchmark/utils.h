@@ -57,4 +57,19 @@ static uint32_t xorshift32()
     return state;
 }
 
+static RsmcBitMask pick_random_bit(RsmcBitMap bits)
+{
+    const int count = popcnt64(bits);
+    if (count == 0)
+        return 0;
+
+    const uint32_t choice = xorshift32() % count;
+
+    for (int i = 0; i < choice; i++) {
+        bits &= bits - 1;
+    }
+
+    return bits & -bits;
+}
+
 #endif // RSMC_UTILS_H
