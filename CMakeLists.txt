@@ -7,7 +7,6 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 add_library(rsmc SHARED
         src/rsmc.c
         include/rsmc.h
-        include/rsmc/types.h
 )
 
 target_include_directories(rsmc PUBLIC
@@ -15,9 +14,32 @@ target_include_directories(rsmc PUBLIC
         $<INSTALL_INTERFACE:include>
 )
 
+file(STRINGS "include/rsmc/version.h" RSMC_MAJOR_LINE REGEX "^[ \t]*#define[ \t]+RSMC_VERSION_MAJOR")
+file(STRINGS "include/rsmc/version.h" RSMC_MINOR_LINE REGEX "^[ \t]*#define[ \t]+RSMC_VERSION_MINOR")
+file(STRINGS "include/rsmc/version.h" RSMC_PATCH_LINE REGEX "^[ \t]*#define[ \t]+RSMC_VERSION_PATCH")
+
+if (RSMC_MAJOR_LINE)
+    string(REGEX MATCH "RSMC_VERSION_MAJOR[ \t]+([0-9]+)" _ ${RSMC_MAJOR_LINE})
+    set(RSMC_VERSION_MAJOR ${CMAKE_MATCH_1})
+else ()
+    message(FATAL_ERROR "Major version not found in include/rsmc/version.h")
+endif ()
+if (RSMC_MAJOR_LINE)
+    string(REGEX MATCH "RSMC_VERSION_MINOR[ \t]+([0-9]+)" _ ${RSMC_MINOR_LINE})
+    set(RSMC_VERSION_MINOR ${CMAKE_MATCH_1})
+else ()
+    message(FATAL_ERROR "Minor version not found in include/rsmc/version.h")
+endif ()
+if (RSMC_MAJOR_LINE)
+    string(REGEX MATCH "RSMC_VERSION_PATCH[ \t]+([0-9]+)" _ ${RSMC_PATCH_LINE})
+    set(RSMC_VERSION_PATCH ${CMAKE_MATCH_1})
+else ()
+    message(FATAL_ERROR "Patch version not found in include/rsmc/version.h")
+endif ()
+
 set_target_properties(rsmc PROPERTIES
-        VERSION 0.1.0
-        SOVERSION 0
+        VERSION "${RSMC_VERSION_MAJOR}.${RSMC_VERSION_MINOR}.${RSMC_VERSION_PATCH}"
+        SOVERSION "${RSMC_VERSION_MAJOR}"
         WINDOWS_EXPORT_ALL_SYMBOLS ON
 )
 
@@ -44,7 +66,7 @@ if(RSMC_BUILD_TESTS)
 
     enable_testing()
     add_subdirectory(test)
-endif()
+endif ()
 
 option(RSMC_BENCHMARK "Bench rmsc on your hardware" ${PROJECT_IS_TOP_LEVEL})
 

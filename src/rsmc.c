@@ -4,190 +4,114 @@
  *
  */
 
-#include <string.h>
-
+#include "rsmc.h"
 #include "private/directions.h"
 #include "private/utils.h"
-#include "rsmc.h"
 
-static uint8_t count_flips_in_direction(const RsmcBoard *board, RsmcCoords coords_to_check,
-                                        const RsmcCoords direction, const RsmcBoardCell player_cell,
-                                        const RsmcBoardCell opponent_cell)
+RsmcVersion rsmc_version(void)
 {
-    uint8_t cells_to_flip = 0;
-
-    while (true) {
-        coords_to_check = rsmc_coords_add(coords_to_check, direction);
-
-        if (!rsmc_coords_is_valid(coords_to_check)) {
-            break;
-        }
-
-        const RsmcBoardCell cell_to_check = *rsmc_cell_at_const(board, coords_to_check);
-
-        if (cell_to_check == opponent_cell) {
-            cells_to_flip++;
-            continue;
-        }
-
-        if (cell_to_check == player_cell && cells_to_flip) {
-            return cells_to_flip;
-        }
-
-        break;
-    }
-
-    return 0;
+    return rsmc_build_version();
 }
 
-void rsmc_set_start_position(RsmcBoard *board)
+RsmcBitMap rsmc_get_valid_moves(const RsmcBoard board, const RsmcPlayer player)
 {
-    memset(board->cells, RsmcBoardCellEmpty, sizeof(board->cells));
-    board->cells[RsmcBoardSize / 2 - 1][RsmcBoardSize / 2 - 1] = RsmcBoardCellWhite;
-    board->cells[RsmcBoardSize / 2][RsmcBoardSize / 2] = RsmcBoardCellWhite;
-    board->cells[RsmcBoardSize / 2][RsmcBoardSize / 2 - 1] = RsmcBoardCellBlack;
-    board->cells[RsmcBoardSize / 2 - 1][RsmcBoardSize / 2] = RsmcBoardCellBlack;
-}
+    if (!rsmc_player_is_valid(player))
+        return 0;
 
-bool rsmc_apply_move(RsmcBoard *board, const RsmcCoords coords, const RsmcPlayer player)
-{
-    if (!rsmc_coords_is_valid(coords) || !rsmc_player_is_valid(player)) {
-        return false;
-    }
-
-    RsmcBoardCell *asked_cell = rsmc_cell_at(board, coords);
-
-    if (*asked_cell != RsmcBoardCellEmpty) {
-        return false;
-    }
-
-    const RsmcBoardCell player_cell = rsmc_player_to_cell(player);
-    const RsmcPlayer opponent = rsmc_player_opposite(player);
-    const RsmcBoardCell opponent_cell = rsmc_player_to_cell(opponent);
-
-    bool flipped = false;
+    RsmcBitMap map = 0;
+    const RsmcBitMask empty = ~(board.black | board.white);
 
     for (int i = 0; i < RsmcDirectionsCount; i++) {
-        const RsmcCoords direction = RsmcDirections[i];
-        RsmcCoords current_coords = coords;
-        const uint8_t cells_to_flip =
-            count_flips_in_direction(board, current_coords, direction, player_cell, opponent_cell);
+        const RsmcDirectionNum dir = RsmcDirectionsNum[i];
 
-        if (cells_to_flip > 0) {
-            flipped = true;
+        RsmcBitMask flood = 0;
+        RsmcBitMask gen = board.by_player[player];
+        const RsmcBitMask pro = board.by_player[rsmc_player_opposite(player)];
 
-            for (uint8_t j = 0; j < cells_to_flip; j++) {
-                current_coords = rsmc_coords_add(current_coords, direction);
-                RsmcBoardCell *cell_to_flip = rsmc_cell_at(board, current_coords);
-                *cell_to_flip = player_cell;
-            }
+        for (int j = 0; j < 6; j++) {
+            gen = rsmc_shift_in_direction(gen, dir) & pro;
+            flood |= gen;
         }
+
+        map |= rsmc_shift_in_direction(flood, dir) & empty;
     }
 
-    if (flipped) {
-        *asked_cell = player_cell;
-    }
-
-    return flipped;
+    return map;
 }
 
-RsmcPlayersScore rsmc_get_players_score(const RsmcBoard *board)
+RsmcBoard rsmc_get_start_position()
 {
-    uint8_t count[3] = {0};
-    for (int y = 0; y < RsmcBoardSize; y++) {
-        for (int x = 0; x < RsmcBoardSize; x++) {
-            if (rsmc_board_cell_is_valid(board->cells[y][x])) {
-                count[board->cells[y][x]]++;
-            }
-        }
+    return RsmcStartPosition;
+}
+
+RsmcBoard rsmc_apply_move(RsmcBoard board, const RsmcBitMask cell_bit_mask, const RsmcPlayer player)
+{
+    if (!rsmc_player_is_valid(player))
+        return board;
+
+    if (popcnt64(cell_bit_mask) != 1) {
+        return board;
     }
 
+    if (board.black & cell_bit_mask || board.white & cell_bit_mask) {
+        return board;
+    }
+
+    const RsmcPlayer opponent = rsmc_player_opposite(player);
+    uint64_t flips = 0;
+
+    for (int i = 0; i < RsmcDirectionsCount; i++) {
+        const RsmcDirectionNum dir = RsmcDirectionsNum[i];
+
+        uint64_t flood = 0;
+        uint64_t gen = cell_bit_mask;
+        const uint64_t pro = board.by_player[rsmc_player_opposite(player)];
+
+        for (int j = 0; j < 6; j++) {
+            gen = rsmc_shift_in_direction(gen, dir) & pro;
+            flood |= gen;
+        }
+
+        if (rsmc_shift_in_direction(flood, dir) & board.by_player[player])
+            flips |= flood;
+    }
+
+    if (flips)
+        flips |= cell_bit_mask;
+
+    board.by_player[player] |= flips;
+    board.by_player[opponent] &= ~flips;
+
+    return board;
+}
+
+RsmcPlayersScore rsmc_get_players_score(const RsmcBoard board)
+{
     const RsmcPlayersScore result = {
-        .white_score = count[RsmcBoardCellWhite],
-        .black_score = count[RsmcBoardCellBlack],
+        .black_score = popcnt64(board.black),
+        .white_score = popcnt64(board.white),
     };
     return result;
 }
 
-bool rsmc_is_move_valid(const RsmcBoard *board, const RsmcCoords coords, const RsmcPlayer player)
+bool rsmc_is_move_valid(const RsmcBoard board, const RsmcBitMask cell_bit_mask,
+                        const RsmcPlayer player)
 {
-    if (!rsmc_coords_is_valid(coords) || !rsmc_player_is_valid(player)) {
+    if (!rsmc_player_is_valid(player))
+        return false;
+
+    if (board.black & cell_bit_mask || board.white & cell_bit_mask) {
         return false;
     }
 
-    const RsmcBoardCell asked_cell = *rsmc_cell_at_const(board, coords);
-
-    if (asked_cell != RsmcBoardCellEmpty) {
-        return false;
-    }
-
-    const RsmcBoardCell player_cell = rsmc_player_to_cell(player);
-    const RsmcPlayer opponent = rsmc_player_opposite(player);
-    const RsmcBoardCell opponent_cell = rsmc_player_to_cell(opponent);
-
-    for (int i = 0; i < RsmcDirectionsCount; i++) {
-        const RsmcCoords direction = RsmcDirections[i];
-        const uint8_t cells_to_flip =
-            count_flips_in_direction(board, coords, direction, player_cell, opponent_cell);
-
-        if (cells_to_flip > 0) {
-            return true;
-        }
-    }
-
-    return false;
+    return rsmc_get_valid_moves(board, player) & cell_bit_mask;
 }
 
-RsmcMoves rsmc_get_valid_moves(const RsmcBoard *board, const RsmcPlayer player)
+RsmcGameState rsmc_get_game_state(const RsmcBoard board)
 {
-    RsmcMoves result = {0};
-
-    if (!rsmc_player_is_valid(player)) {
-        return result;
-    }
-
-    const int8_t board_size = RsmcBoardSize;
-    for (int8_t y = 0; y < board_size; y++) {
-        for (int8_t x = 0; x < board_size; x++) {
-            const RsmcCoords coords = {x, y};
-            if (rsmc_is_move_valid(board, coords, player) && result.count < RsmcMaxValidMoves) {
-                result.coords[result.count++] = coords;
-            }
-        }
-    }
-
-    return result;
-}
-
-RsmcGameState rsmc_get_game_state(const RsmcBoard *board)
-{
-    bool game_finished = true;
-    RsmcPlayersScore score = {0};
-
-    const int8_t board_size = RsmcBoardSize;
-    for (int8_t y = 0; y < board_size; y++) {
-        for (int8_t x = 0; x < board_size; x++) {
-            const RsmcCoords coords = {x, y};
-            const RsmcBoardCell cell = *rsmc_cell_at_const(board, coords);
-
-            switch (cell) {
-                case RsmcBoardCellBlack:
-                    score.black_score++;
-                    break;
-                case RsmcBoardCellWhite:
-                    score.white_score++;
-                    break;
-                case RsmcBoardCellEmpty:
-                    if (game_finished && (rsmc_is_move_valid(board, coords, RsmcPlayerWhite) ||
-                                          rsmc_is_move_valid(board, coords, RsmcPlayerBlack))) {
-                        game_finished = false;
-                    }
-                    break;
-                default:;
-            }
-        }
-    }
-
+    const bool game_finished = !(rsmc_get_valid_moves(board, RsmcPlayerBlack) ||
+                                 rsmc_get_valid_moves(board, RsmcPlayerWhite));
+    const RsmcPlayersScore score = rsmc_get_players_score(board);
     RsmcGameStatus game_status;
 
     if (!game_finished) {
@@ -200,6 +124,6 @@ RsmcGameState rsmc_get_game_state(const RsmcBoard *board)
         game_status = RsmcGameStatusDraw;
     }
 
-    const RsmcGameState result = {score, game_status};
+    const RsmcGameState result = {.score = score, .game_status = game_status};
     return result;
 }

@@ -7,11 +7,26 @@
 #ifndef RSMC_UTILS_H
 #define RSMC_UTILS_H
 
-#include "rsmc/types.h"
+#include "rsmc/abstractions.h"
+#include "rsmc/core.h"
 #include <assert.h>
 
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+#if defined(_MSC_VER)
+#include <intrin.h>
+#define popcnt64(x)  __popcnt64(x)
+#elif defined(__GNUC__) || defined(__clang__)
+#define popcnt64(x)  __builtin_popcountll(x)
+#else
+static inline int popcnt64(uint64_t x) {
+    x = x - ((x >> 1) & 0x5555555555555555ULL);
+    x = (x & 0x3333333333333333ULL) + ((x >> 2) & 0x3333333333333333ULL);
+    x = (x + (x >> 4)) & 0x0F0F0F0F0F0F0F0FULL;
+    return (x * 0x0101010101010101ULL) >> 56;
+}
 #endif
 
 /**
@@ -37,7 +52,7 @@ static inline RsmcPlayer rsmc_player_opposite(const RsmcPlayer player)
 {
     static_assert(RsmcPlayerBlack == !RsmcPlayerWhite && RsmcPlayerWhite == !RsmcPlayerBlack,
                   "cannot toggle players with !");
-    return (RsmcPlayer)!player; // assume exactly two players (RsmcPlayerWhite/RsmcPlayerBlack).
+    return (RsmcPlayer)!player;
 }
 
 /**
@@ -68,31 +83,6 @@ static inline RsmcCoords rsmc_coords_sub(const RsmcCoords left, const RsmcCoords
     result.x = (int8_t)(left.x - right.x);
     result.y = (int8_t)(left.y - right.y);
     return result;
-}
-
-/**
- * Returns mutable pointer to cell based on coords without validation.
- *
- * @param board a pointer to RsmcBoard.
- * @param coords coords of a cell.
- * @return a mutable pointer to the cell.
- */
-static inline RsmcBoardCell *rsmc_cell_at(RsmcBoard *board, const RsmcCoords coords)
-{
-    return &board->cells[coords.y][coords.x];
-}
-
-/**
- * Returns constant pointer to cell based on coords without validation.
- *
- * @param board a constant pointer to RsmcBoard.
- * @param coords a coords of a cell.
- * @return a constant pointer to the cell.
- */
-static inline const RsmcBoardCell *rsmc_cell_at_const(const RsmcBoard *board,
-                                                      const RsmcCoords coords)
-{
-    return &board->cells[coords.y][coords.x];
 }
 
 #ifdef __cplusplus
