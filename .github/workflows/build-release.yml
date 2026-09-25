@@ -73,13 +73,13 @@ jobs:
         arch: [ armv8-a ]
         target:
           - os: ubuntu-22.04-arm
-            label: linux-arm64
+            label: linux
             ext: tar.gz
           - os: macos-15
-            label: macos-arm64
+            label: macos
             ext: tar.gz
           - os: windows-11-arm
-            label: windows-arm64
+            label: windows
             ext: zip
     runs-on: ${{ matrix.target.os }}
     defaults:
