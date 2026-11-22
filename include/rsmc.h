@@ -29,7 +29,7 @@ RsmcVersion rsmc_version(void);
 /**
  * Start position for Reversi.
  */
-const static RsmcBoard RsmcStartPosition = {.black = 0x810000000, .white = 0x1008000000};
+static const RsmcBoard RsmcStartPosition = {.black = 0x810000000, .white = 0x1008000000};
 
 /**
  * Returns board with Reversi start position.
