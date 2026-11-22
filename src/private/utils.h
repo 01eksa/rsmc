@@ -21,7 +21,7 @@ extern "C" {
 #if defined(_MSC_VER)
 #include <intrin.h>
 #define popcnt64(x)  __popcnt64(x)
-#elif defined(__GNUC__) || defined(__clang__)
+#elif (defined(__GNUC__) || defined(__clang__)) && (defined(__POPCNT__) || defined(__aarch64__))
 #define popcnt64(x)  __builtin_popcountll(x)
 #else
 static inline int popcnt64(uint64_t x) {
