@@ -22,6 +22,13 @@ jobs:
       run:
         shell: bash
     steps:
+      - name: Install lld (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          brew install lld
+          echo "$(brew --prefix lld)/bin" >> "$GITHUB_PATH"
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
