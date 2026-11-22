@@ -19,7 +19,6 @@ static const char Help[] =
     "Examples:\n"
     "  $ rsmcbench\n"
     "  $ rsmcbench 500000\n";
-;
 
 typedef struct {
     unsigned long games;

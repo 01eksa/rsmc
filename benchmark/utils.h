@@ -49,7 +49,7 @@ static inline int popcnt64(uint64_t x)
 
 static uint32_t state = ('r' << 24) + ('s' << 16) + ('m' << 8) + 'c';
 
-static uint32_t xorshift32()
+static uint32_t xorshift32(void)
 {
     state ^= state << 13;
     state ^= state >> 17;
@@ -65,7 +65,7 @@ static RsmcBitMask pick_random_bit(RsmcBitMap bits)
 
     const uint32_t choice = xorshift32() % count;
 
-    for (int i = 0; i < choice; i++) {
+    for (uint32_t i = 0; i < choice; i++) {
         bits &= bits - 1;
     }
 
