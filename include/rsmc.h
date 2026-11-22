@@ -57,7 +57,7 @@ RsmcPlayersScore rsmc_get_players_score(RsmcBoard board);
 /**
  * @brief Checks if move is valid.
  *
- * @param board a constant pointer to RsmcBoard.
+ * @param board RsmcBoard.
  * @param cell_bit_mask RsmcBitMask of cell where you want to place a piece.
  * @param player RsmcPlayer to check a move for.
  * @return true if move is valid, false if not (or coords / player is invalid)
