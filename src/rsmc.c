@@ -42,7 +42,7 @@ RsmcBitMap rsmc_get_valid_moves(const RsmcBoard board, const RsmcPlayer player)
     return map;
 }
 
-RsmcBoard rsmc_get_start_position()
+RsmcBoard rsmc_get_start_position(void)
 {
     return RsmcStartPosition;
 }
