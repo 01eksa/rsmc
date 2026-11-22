@@ -10,9 +10,11 @@ Reversi stateless model in C
 
 # Why RSMC?
 
-* **Simplicity:** rsmc is written in a fully functional style and does just what you expect.
+* **Simplicity:** rsmc is stateless, written in a fully functional style and does just what you expect.
 * **Performance:** rsmc is fast and memory-efficient. It gives you all basic functionality without any overhead.
 * **Safety:** rsmc doesn't allocate memory or use pointers since 1.0, so it's completely memory-safe.
+* **Versatility:** you can use it as it is or build your own wrapper around it: make a state model or use it in other
+  languages (check out [RsmcSharp](https://github.com/01eksa/RsmcSharp))
 
 # Quick Start
 
@@ -22,10 +24,10 @@ You can find ready-to-use binaries [here](https://github.com/01eksa/rsmc/release
 
 ### Compatibility:
 
-|       | Linux                                   | Windows                        | macOS             |
-|-------|-----------------------------------------|--------------------------------|-------------------|
-| x64   | GLIBC 2.35+ (Ubuntu 22.04+, Debian 12+) | Windows 10 / 11 / Server 2022+ | macOS 15+ (Intel) |
-| ARM64 | GLIBC 2.35+ (Ubuntu 22.04+, Debian 12+) | Windows 11 ARM64               | macOS 15+ (ARM64) |
+|       | Linux                                  | Windows                        | macOS             |
+|-------|----------------------------------------|--------------------------------|-------------------|
+| x64   | Any (doesn't depend on glibc nor musl) | Windows 10 / 11 / Server 2022+ | macOS 15+ (Intel) |
+| ARM64 | Any (doesn't depend on glibc nor musl) | Windows 11 ARM64               | macOS 15+ (ARM64) |
 
 I tested rsmc on a few architectures. On x64, AVX2 support provides significantly better performance, so I recommend
 using the x86-64-v3 binary if your CPU supports it. Minimal requirements: any AMD Ryzen, Intel starting with Haswell
@@ -40,7 +42,7 @@ If you need support for other operating systems or architectures, you can build 
 include(FetchContent)
 FetchContent_Declare(rsmc
         GIT_REPOSITORY https://github.com/01eksa/rsmc.git
-        GIT_TAG v0.1.0 # or whatever version you need
+        GIT_TAG v1.0.0 # or whatever version you need
 )
 FetchContent_MakeAvailable(rsmc)
 
@@ -56,23 +58,44 @@ git clone https://github.com/01eksa/rsmc.git
 cd rsmc
 ```
 
-Build:
+### Release (clang + lld are required):
+
+Build release
 
 ```shell
-cmake -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build --config Release
+cmake --workflow --preset release
 ```
 
-Run tests:
+Run tests
 
 ```shell
-ctest --test-dir build -C Release -V --timeout 120
+ctest --preset release
 ```
 
 Run benchmark:
 
 ```shell
-build/benchmark/rsmcbench
+build/release/benchmark/rsmcbench
+```
+
+### Debug (system defaults):
+
+Build:
+
+```shell
+cmake --workflow --preset debug
+```
+
+Run tests:
+
+```shell
+ctest --preset debug
+```
+
+Run benchmark:
+
+```shell
+build/debug/benchmark/rsmcbench
 ```
 
 # API
