@@ -28,11 +28,8 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - name: Configure
-        run: cmake -B build -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS="-O3 ${{ matrix.arch }}" -G Ninja
-
       - name: Build
-        run: ninja -C build -v
+        run: cmake --workflow --preset release
 
       - name: Test
-        run: ctest --test-dir build -C Release
+        run: ctest --preset release
