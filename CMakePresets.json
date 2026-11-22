@@ -82,7 +82,7 @@
   ],
   "workflowPresets": [
     {
-      "name": "debug",
+      "name": "build-debug",
       "steps": [
         {
           "type": "configure",
@@ -95,7 +95,7 @@
       ]
     },
     {
-      "name": "release",
+      "name": "build-release",
       "steps": [
         {
           "type": "configure",
@@ -103,10 +103,6 @@
         },
         {
           "type": "build",
-          "name": "release"
-        },
-        {
-          "type": "package",
           "name": "release"
         }
       ]
