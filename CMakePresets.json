@@ -72,12 +72,18 @@
   ],
   "packagePresets": [
     {
-      "name": "release",
+      "name": "release-zip",
       "configurePreset": "release",
       "generators": [
         "ZIP"
-      ],
-      "packageDirectory": "${sourceDir}/build/install"
+      ]
+    },
+    {
+      "name": "release-tgz",
+      "configurePreset": "release",
+      "generators": [
+        "TGZ"
+      ]
     }
   ],
   "workflowPresets": [
