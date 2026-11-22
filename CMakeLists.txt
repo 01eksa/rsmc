@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.28)
+cmake_minimum_required(VERSION 3.29)
 project(rsmc C)
 
 set(CMAKE_C_STANDARD 11)
@@ -14,32 +14,45 @@ target_include_directories(rsmc PUBLIC
         $<INSTALL_INTERFACE:include>
 )
 
+option(RSMC_FREESTANDING "Build freestanding dll (no libc dependency)" OFF)
+if (${RSMC_FREESTANDING})
+    target_link_options(rsmc PRIVATE
+            $<$<C_COMPILER_ID:GNU,Clang>:-nostdlib -Wl,--no-undefined>
+    )
+
+    target_compile_options(rsmc PRIVATE
+            $<$<C_COMPILER_ID:GNU,Clang>:-ffreestanding>
+    )
+endif ()
+
 file(STRINGS "include/rsmc/version.h" RSMC_MAJOR_LINE REGEX "^[ \t]*#define[ \t]+RSMC_VERSION_MAJOR")
 file(STRINGS "include/rsmc/version.h" RSMC_MINOR_LINE REGEX "^[ \t]*#define[ \t]+RSMC_VERSION_MINOR")
 file(STRINGS "include/rsmc/version.h" RSMC_PATCH_LINE REGEX "^[ \t]*#define[ \t]+RSMC_VERSION_PATCH")
 
 if (RSMC_MAJOR_LINE)
     string(REGEX MATCH "RSMC_VERSION_MAJOR[ \t]+([0-9]+)" _ ${RSMC_MAJOR_LINE})
-    set(RSMC_VERSION_MAJOR ${CMAKE_MATCH_1})
+    set(PROJECT_VERSION_MAJOR ${CMAKE_MATCH_1})
 else ()
     message(FATAL_ERROR "Major version not found in include/rsmc/version.h")
 endif ()
-if (RSMC_MAJOR_LINE)
+if (RSMC_MINOR_LINE)
     string(REGEX MATCH "RSMC_VERSION_MINOR[ \t]+([0-9]+)" _ ${RSMC_MINOR_LINE})
-    set(RSMC_VERSION_MINOR ${CMAKE_MATCH_1})
+    set(PROJECT_VERSION_MINOR ${CMAKE_MATCH_1})
 else ()
     message(FATAL_ERROR "Minor version not found in include/rsmc/version.h")
 endif ()
-if (RSMC_MAJOR_LINE)
+if (RSMC_PATCH_LINE)
     string(REGEX MATCH "RSMC_VERSION_PATCH[ \t]+([0-9]+)" _ ${RSMC_PATCH_LINE})
-    set(RSMC_VERSION_PATCH ${CMAKE_MATCH_1})
+    set(PROJECT_VERSION_PATCH ${CMAKE_MATCH_1})
 else ()
     message(FATAL_ERROR "Patch version not found in include/rsmc/version.h")
 endif ()
 
+set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
+
 set_target_properties(rsmc PROPERTIES
-        VERSION "${RSMC_VERSION_MAJOR}.${RSMC_VERSION_MINOR}.${RSMC_VERSION_PATCH}"
-        SOVERSION "${RSMC_VERSION_MAJOR}"
+        VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}"
+        SOVERSION "${PROJECT_VERSION_MAJOR}"
         WINDOWS_EXPORT_ALL_SYMBOLS ON
 )
 
@@ -52,9 +65,14 @@ install(TARGETS rsmc
 )
 install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
+if (${PROJECT_IS_TOP_LEVEL})
+    set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${PROJECT_VERSION}")
+    include(CPack)
+endif ()
+
 option(RSMC_BUILD_TESTS "Build rsmc test suite" ${PROJECT_IS_TOP_LEVEL})
 
-if(RSMC_BUILD_TESTS)
+if (RSMC_BUILD_TESTS)
     include(FetchContent)
     FetchContent_Declare(unity
             URL https://github.com/ThrowTheSwitch/Unity/archive/refs/tags/v2.6.1.zip
@@ -68,7 +86,7 @@ if(RSMC_BUILD_TESTS)
     add_subdirectory(test)
 endif ()
 
-option(RSMC_BENCHMARK "Bench rmsc on your hardware" ${PROJECT_IS_TOP_LEVEL})
+option(RSMC_BENCHMARK "Bench rsmc on your hardware" ${PROJECT_IS_TOP_LEVEL})
 
 if (RSMC_BENCHMARK)
     add_subdirectory(benchmark)
