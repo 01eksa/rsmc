@@ -63,7 +63,7 @@ cd rsmc
 Build release
 
 ```shell
-cmake --workflow --preset release
+cmake --workflow --preset build-release
 ```
 
 Run tests
@@ -83,7 +83,7 @@ build/release/benchmark/rsmcbench
 Build:
 
 ```shell
-cmake --workflow --preset debug
+cmake --workflow --preset build-debug
 ```
 
 Run tests:
