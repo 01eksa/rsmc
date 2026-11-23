@@ -11,10 +11,7 @@
       "hidden": true,
       "displayName": "Default Config",
       "description": "Default build",
-      "binaryDir": "build/${presetName}",
-      "cacheVariables": {
-        "CMAKE_C_FLAGS": "-Wall -Wextra -Wpedantic"
-      }
+      "binaryDir": "build/${presetName}"
     },
     {
       "name": "debug",

@@ -14,15 +14,23 @@ target_include_directories(rsmc PUBLIC
         $<INSTALL_INTERFACE:include>
 )
 
-option(RSMC_FREESTANDING "Build freestanding dll (no libc dependency)" OFF)
-if (${RSMC_FREESTANDING})
-    target_link_options(rsmc PRIVATE
-            $<$<C_COMPILER_ID:GNU,Clang>:-nostdlib -Wl,--no-undefined>
-    )
+add_library(rsmc_warnings INTERFACE)
+target_compile_options(rsmc_warnings INTERFACE
+    $<$<C_COMPILER_ID:GNU,Clang,AppleClang>:-Wall -Wextra -Wpedantic>
+    $<$<C_COMPILER_ID:MSVC>:/W4>
+)
+target_link_libraries(rsmc PRIVATE rsmc_warnings)
 
-    target_compile_options(rsmc PRIVATE
-            $<$<C_COMPILER_ID:GNU,Clang>:-ffreestanding>
-    )
+option(RSMC_FREESTANDING "Build freestanding dll (no libc dependency, only GCC/Clang)" OFF)
+if (${RSMC_FREESTANDING})
+    if(NOT CMAKE_C_COMPILER_ID MATCHES "^(GNU|Clang)$")
+        message(FATAL_ERROR
+            "RSMC_FREESTANDING requires GCC or Clang, "
+            "but the C compiler is ${CMAKE_C_COMPILER_ID}")
+    endif()
+
+    target_link_options(rsmc PRIVATE -nostdlib -Wl,--no-undefined)
+    target_compile_options(rsmc PRIVATE -ffreestanding)
 endif ()
 
 file(STRINGS "include/rsmc/version.h" RSMC_MAJOR_LINE REGEX "^[ \t]*#define[ \t]+RSMC_VERSION_MAJOR")

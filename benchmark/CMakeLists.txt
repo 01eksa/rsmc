@@ -1,5 +1,5 @@
 add_executable(rsmcbench rsmc_benchmark.c)
-target_link_libraries(rsmcbench PRIVATE rsmc)
+target_link_libraries(rsmcbench PRIVATE rsmc_warnings rsmc)
 
 add_compile_definitions(_POSIX_C_SOURCE=199309L)
 
