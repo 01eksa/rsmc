@@ -21,21 +21,9 @@ target_compile_options(rsmc_warnings INTERFACE
 )
 target_link_libraries(rsmc PRIVATE rsmc_warnings)
 
-option(RSMC_FREESTANDING "Build freestanding dll (no libc dependency, only GCC/Clang)" OFF)
-if (${RSMC_FREESTANDING})
-    if(NOT CMAKE_C_COMPILER_ID MATCHES "^(GNU|Clang|AppleClang)$")
-        message(FATAL_ERROR
-            "RSMC_FREESTANDING requires GCC or Clang, "
-            "but the C compiler is ${CMAKE_C_COMPILER_ID}")
-    endif()
-
-    if (APPLE)
-        target_link_options(rsmc PRIVATE -Wl,-undefined,error)
-    else ()
-        target_link_options(rsmc PRIVATE -Wl,--no-undefined)
-    endif ()
-
-    target_link_options(rsmc PRIVATE -nostdlib)
+# make binary on linux freestanding to avoid dependency on glibc / musl
+if (LINUX)
+    target_link_options(rsmc PRIVATE -nostdlib -Wl,--no-undefined)
     target_compile_options(rsmc PRIVATE -ffreestanding)
 endif ()
 

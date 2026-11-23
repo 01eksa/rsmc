@@ -30,8 +30,7 @@
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_C_COMPILER": "clang",
         "CMAKE_LINKER_TYPE": "LLD",
-        "CMAKE_COMPILE_WARNING_AS_ERROR": "ON",
-        "RSMC_FREESTANDING": "ON"
+        "CMAKE_COMPILE_WARNING_AS_ERROR": "ON"
       }
     }
   ],
