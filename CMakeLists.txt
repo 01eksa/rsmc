@@ -29,7 +29,13 @@ if (${RSMC_FREESTANDING})
             "but the C compiler is ${CMAKE_C_COMPILER_ID}")
     endif()
 
-    target_link_options(rsmc PRIVATE -nostdlib -Wl,--no-undefined)
+    if (APPLE)
+        target_link_options(rsmc PRIVATE -Wl,-undefined,error)
+    else ()
+        target_link_options(rsmc PRIVATE -Wl,--no-undefined)
+    endif ()
+
+    target_link_options(rsmc PRIVATE -nostdlib)
     target_compile_options(rsmc PRIVATE -ffreestanding)
 endif ()
 
