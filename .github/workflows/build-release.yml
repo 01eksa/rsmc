@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag name of the existing release (e.g. v0.1.0)'
+        description: 'Tag name of the existing release (e.g. v1.0.0)'
         required: true
         type: string
 
@@ -15,50 +15,52 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arch: [ x86-64, x86-64-v3 ]
+        arch: 
+          - name: x86-64
+            label: x64
+          - name: x86-64-v3
+            label: x64-v3
+
         target:
           - os: ubuntu-22.04
             label: linux
-            ext: tar.gz
+            pack-method: tgz
           - os: macos-15-intel
-            label: macos
-            ext: tar.gz
+            label: osx
+            pack-method: tgz
           - os: windows-2022
-            label: windows
-            ext: zip
+            label: win
+            pack-method: zip
     runs-on: ${{ matrix.target.os }}
     defaults:
       run:
         shell: bash
     env:
-      BUILD_PATH: build-${{ matrix.arch }}
-      LABEL: ${{ matrix.target.label }}-${{ matrix.arch }}
-      POSTFIX: ${{ github.event.inputs.tag || github.ref_name }}-${{ matrix.target.label }}-${{ matrix.arch }}.${{ matrix.target.ext }}
+      LABEL: ${{ matrix.target.label }}-${{ matrix.arch.label }}
+      POSTFIX: ${{ github.event.inputs.tag || github.ref_name }}-${{ matrix.target.label }}-${{ matrix.arch.label }}.${{ matrix.target.ext }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Configure
-        run: cmake -B ${{ env.BUILD_PATH }} -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS="-O3 -march=${{ matrix.arch }}"
+        uses: actions/checkout@v7
 
       - name: Build
-        run: cmake --build ${{ env.BUILD_PATH }} --config Release
+        run: CFLAGS="-march=${{ matrix.arch.name }}" cmake --workflow --preset build-release
 
       - name: Test
-        run: ctest --test-dir ${{ env.BUILD_PATH }} -C Release
+        run: ctest --preset release
 
-      - name: Install
-        run: cmake --install ${{ env.BUILD_PATH }} --config Release --prefix install
+      - name: Pack
+        run: cpack --preset release-${{ matrix.target.pack-method }}
+      
+      - name: Make directory for packages
+        run: mkdir dist
 
-      - name: Archive package (tar.gz)
-        if: matrix.target.ext == 'tar.gz'
-        working-directory: install
-        run: tar czvf ../rsmc-${{ env.POSTFIX }} .
+      - name: Move package (tar.gz)
+        if: matrix.target.pack-method == 'tgz'
+        run: mv build/release/*.tar.gz dist/rsmc-${{ env.POSTFIX }}
 
-      - name: Archive package (zip)
-        if: matrix.target.ext == 'zip'
-        working-directory: install
-        run: cmake -E tar cfv ../rsmc-${{ env.POSTFIX }} --format=zip .
+      - name: Move package (zip)
+        if: matrix.target.pack-method == 'zip'
+        run: mv build/release/*.zip dist/rsmc-${{ env.POSTFIX }}
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
@@ -70,17 +72,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arch: [ armv8-a ]
+        arch: 
+          - name: armv8-a 
+            label: arm64
         target:
           - os: ubuntu-22.04-arm
             label: linux
-            ext: tar.gz
+            pack-method: tgz
           - os: macos-15
-            label: macos
-            ext: tar.gz
+            label: osx
+            pack-method: tgz
           - os: windows-11-arm
-            label: windows
-            ext: zip
+            label: win
+            pack-method: zip
     runs-on: ${{ matrix.target.os }}
     defaults:
       run:
@@ -91,29 +95,27 @@ jobs:
       POSTFIX: ${{ github.event.inputs.tag || github.ref_name }}-${{ matrix.target.label }}-${{ matrix.arch }}.${{ matrix.target.ext }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Configure
-        run: cmake -B ${{ env.BUILD_PATH }} -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS="-O3 -march=${{ matrix.arch }}" -G Ninja
+        uses: actions/checkout@v7
 
       - name: Build
-        run: ninja -C ${{ env.BUILD_PATH }} -v
+        run: CFLAGS="-march=${{ matrix.arch.name }}" cmake --workflow --preset build-release
 
       - name: Test
-        run: ctest --test-dir ${{ env.BUILD_PATH }} -C Release
+        run: ctest --preset release
 
-      - name: Install
-        run: cmake --install ${{ env.BUILD_PATH }} --config Release --prefix install
+      - name: Pack
+        run: cpack --preset release-${{ matrix.target.pack-method }}
+      
+      - name: Make directory for packages
+        run: mkdir dist
 
-      - name: Archive package (tar.gz)
-        if: matrix.target.ext == 'tar.gz'
-        working-directory: install
-        run: tar czvf ../rsmc-${{ env.POSTFIX }} .
+      - name: Move package (tar.gz)
+        if: matrix.target.pack-method == 'tgz'
+        run: mv build/release/*.tar.gz dist/rsmc-${{ env.POSTFIX }}
 
-      - name: Archive package (zip)
-        if: matrix.target.ext == 'zip'
-        working-directory: install
-        run: cmake -E tar cfv ../rsmc-${{ env.POSTFIX }} --format=zip .
+      - name: Move package (zip)
+        if: matrix.target.pack-method == 'zip'
+        run: mv build/release/*.zip dist/rsmc-${{ env.POSTFIX }}
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
@@ -126,7 +128,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install Doxygen
         run: |
@@ -162,7 +164,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Download all platform artifacts
         uses: actions/download-artifact@v4
