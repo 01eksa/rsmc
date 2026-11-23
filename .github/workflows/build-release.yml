@@ -39,6 +39,13 @@ jobs:
       LABEL: ${{ matrix.target.label }}-${{ matrix.arch.label }}
       POSTFIX: ${{ github.event.inputs.tag || github.ref_name }}-${{ matrix.target.label }}-${{ matrix.arch.label }}.${{ matrix.target.ext }}
     steps:
+      - name: Install lld (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          brew install lld
+          echo "$(brew --prefix lld)/bin" >> "$GITHUB_PATH"
+
       - name: Checkout
         uses: actions/checkout@v7
 
@@ -94,6 +101,13 @@ jobs:
       LABEL: ${{ matrix.target.label }}-${{ matrix.arch }}
       POSTFIX: ${{ github.event.inputs.tag || github.ref_name }}-${{ matrix.target.label }}-${{ matrix.arch }}.${{ matrix.target.ext }}
     steps:
+      - name: Install lld (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          brew install lld
+          echo "$(brew --prefix lld)/bin" >> "$GITHUB_PATH"
+
       - name: Checkout
         uses: actions/checkout@v7
 
