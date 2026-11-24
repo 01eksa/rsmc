@@ -73,15 +73,13 @@ static inline bool rsmc_coords_is_valid(const RsmcCoords coords)
  * @brief Converts RsmcCoords to integer index.
  *
  * @param coords RsmcCoords to convert.
- * @return -1 if coords are invalid or index between 0 and 63.
+ * @return -1 if coords are invalid
  */
 static inline int rsmc_coords_to_index(const RsmcCoords coords)
 {
-    int index = coords.y * RsmcBoardSize + coords.x;
-    if (index < 0 || index >= RsmcBoardArea)
-        index = -1;
-
-    return index;
+    if (!rsmc_coords_is_valid(coords))
+        return -1;
+    return coords.y * RsmcBoardSize + coords.x;
 }
 
 /**
@@ -99,7 +97,7 @@ static inline RsmcBitMask rsmc_index_to_bitmask(const uint8_t index)
 
 static inline RsmcBoardCell rsmc_board_get_cell(const RsmcBoard board, const RsmcCoords coords)
 {
-    const RsmcBitMask mask = rsmc_index_to_bitmask(rsmc_coords_to_index(coords));
+    const RsmcBitMask mask = rsmc_index_to_bitmask((uint8_t)rsmc_coords_to_index(coords));
     if (board.black & mask)
         return RsmcBoardCellBlack;
     if (board.white & mask)
@@ -110,7 +108,7 @@ static inline RsmcBoardCell rsmc_board_get_cell(const RsmcBoard board, const Rsm
 static inline RsmcBoard rsmc_board_set_cell(RsmcBoard board, const RsmcCoords coords,
                                             const RsmcBoardCell cell)
 {
-    const RsmcBitMask mask = rsmc_index_to_bitmask(rsmc_coords_to_index(coords));
+    const RsmcBitMask mask = rsmc_index_to_bitmask((uint8_t)rsmc_coords_to_index(coords));
     board.black &= ~mask;
     board.white &= ~mask;
 
@@ -143,9 +141,9 @@ static inline RsmcBoard rsmc_board_from_classic_board(const RsmcClassicBoard cla
         for (int x = 0; x < RsmcBoardSize; x++) {
             const RsmcCoords coords = {.x = (int8_t)x, .y = (int8_t)y};
             if (classic_board.cells[y][x] == RsmcBoardCellBlack) {
-                board.black |= rsmc_index_to_bitmask(rsmc_coords_to_index(coords));
+                board.black |= rsmc_index_to_bitmask((uint8_t)rsmc_coords_to_index(coords));
             } else if (classic_board.cells[y][x] == RsmcBoardCellWhite) {
-                board.white |= rsmc_index_to_bitmask(rsmc_coords_to_index(coords));
+                board.white |= rsmc_index_to_bitmask((uint8_t)rsmc_coords_to_index(coords));
             }
         }
     }

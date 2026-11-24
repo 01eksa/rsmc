@@ -75,7 +75,7 @@ RsmcBitMap rsmc_get_valid_moves(RsmcBoard board, RsmcPlayer player);
 
 /** @brief Analyzes current game state: finds player score and game status.
  *
- * @param board a constant pointer to RsmcBoard.
+ * @param board RsmcBoard.
  * @return current RsmcGameState.
  */
 RsmcGameState rsmc_get_game_state(RsmcBoard board);
