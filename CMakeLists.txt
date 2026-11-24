@@ -21,8 +21,9 @@ target_compile_options(rsmc_warnings INTERFACE
 )
 target_link_libraries(rsmc PRIVATE rsmc_warnings)
 
-# make binary on linux freestanding to avoid dependency on glibc / musl
-if (LINUX)
+# make binary on linux freestanding to avoid dependency on glibc / musl, but make it optional
+option(RSMC_FREESTANDING "Build rsmc in freestanding mode on linux" ${PROJECT_IS_TOP_LEVEL})
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND RSMC_FREESTANDING)
     target_link_options(rsmc PRIVATE -nostdlib -Wl,--no-undefined)
     target_compile_options(rsmc PRIVATE -ffreestanding -fno-stack-protector)
 endif ()
