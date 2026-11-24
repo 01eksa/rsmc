@@ -24,7 +24,7 @@ target_link_libraries(rsmc PRIVATE rsmc_warnings)
 # make binary on linux freestanding to avoid dependency on glibc / musl
 if (LINUX)
     target_link_options(rsmc PRIVATE -nostdlib -Wl,--no-undefined)
-    target_compile_options(rsmc PRIVATE -ffreestanding)
+    target_compile_options(rsmc PRIVATE -ffreestanding -fno-stack-protector)
 endif ()
 
 file(STRINGS "include/rsmc/version.h" RSMC_MAJOR_LINE REGEX "^[ \t]*#define[ \t]+RSMC_VERSION_MAJOR")
