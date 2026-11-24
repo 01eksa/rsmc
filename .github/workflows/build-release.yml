@@ -106,7 +106,7 @@ jobs:
       run:
         shell: bash
     env:
-      LABEL: ${{ matrix.target.label }}-${{ matrix.arch }}
+      LABEL: ${{ matrix.target.label }}-${{ matrix.arch.label }}
       POSTFIX: ${{ github.event.inputs.tag || github.ref_name }}-${{ matrix.target.label }}-${{ matrix.arch.name }}.${{ matrix.target.ext }}
     steps:
       - name: Install lld (macOS)
