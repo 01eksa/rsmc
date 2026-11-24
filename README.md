@@ -24,10 +24,11 @@ You can find ready-to-use binaries [here](https://github.com/01eksa/rsmc/release
 
 ### Compatibility:
 
-|       | Linux                                  | Windows                        | macOS             |
-|-------|----------------------------------------|--------------------------------|-------------------|
-| x64   | Any (doesn't depend on glibc nor musl) | Windows 10 / 11 / Server 2022+ | macOS 15+ (Intel) |
-| ARM64 | Any (doesn't depend on glibc nor musl) | Windows 11 ARM64               | macOS 15+ (ARM64) |
+v1.0.0:
+|       | Linux                                   | Windows                        | macOS             |
+|-------|-----------------------------------------|--------------------------------|-------------------|
+| x64   | GLIBC 2.35+ (Ubuntu 22.04+, Debian 12+) | Windows 10 / 11 / Server 2022+ | macOS 15+ (Intel) |
+| ARM64 | GLIBC 2.35+ (Ubuntu 22.04+, Debian 12+) | Windows 11 ARM64               | macOS 15+ (ARM64) |
 
 I tested rsmc on a few architectures. On x64, AVX2 support provides significantly better performance, so I recommend
 using the x86-64-v3 binary if your CPU supports it. Minimal requirements: any AMD Ryzen, Intel starting with Haswell
