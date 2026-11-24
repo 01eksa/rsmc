@@ -49,6 +49,12 @@ jobs:
         run:
           shell: bash
       steps:
+        - name: Checkout
+          uses: actions/checkout@v7
+          with:
+            fetch-depth: 0
+            fetch-tags: true
+
         - name: Build
           run: cmake --workflow --preset build-release
 
