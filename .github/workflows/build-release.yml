@@ -106,9 +106,8 @@ jobs:
       run:
         shell: bash
     env:
-      BUILD_PATH: build-${{ matrix.arch }}
       LABEL: ${{ matrix.target.label }}-${{ matrix.arch }}
-      POSTFIX: ${{ github.event.inputs.tag || github.ref_name }}-${{ matrix.target.label }}-${{ matrix.arch }}.${{ matrix.target.ext }}
+      POSTFIX: ${{ github.event.inputs.tag || github.ref_name }}-${{ matrix.target.label }}-${{ matrix.arch.name }}.${{ matrix.target.ext }}
     steps:
       - name: Install lld (macOS)
         if: runner.os == 'macOS'
@@ -206,5 +205,6 @@ jobs:
           else
             gh release create "$TAG" dist/* \
               --title "$TAG" \
-              --generate-notes
+              --generate-notes \
+              --draft
           fi
