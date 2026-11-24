@@ -35,7 +35,6 @@ jobs:
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
-          fetch-tags: true
 
       - name: Build
         run: cmake --workflow --preset build-release
@@ -45,7 +44,12 @@ jobs:
   
   portability-tests:
       timeout-minutes: 10
-      runs-on: ubuntu-26.04
+      strategy:
+        matrix:
+          os: 
+            - ubuntu-26.04
+            - ubuntu-26.04-arm
+      runs-on: ${{ matrix.os }}
       defaults:
         run:
           shell: bash
@@ -54,7 +58,6 @@ jobs:
           uses: actions/checkout@v7
           with:
             fetch-depth: 0
-            fetch-tags: true
 
         - name: Build
           run: cmake --workflow --preset build-release
